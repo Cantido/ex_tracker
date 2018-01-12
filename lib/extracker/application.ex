@@ -4,12 +4,14 @@ defmodule Extracker.Application do
   use Application
 
   def start(_type, _args) do
+    port = Application.fetch_env!(:extracker, :port)
+
     dispatch = :cowboy_router.compile([
       {'_', [{"/", Extracker.Handler, []}]}
     ])
 
     {:ok, _} = :cowboy.start_clear(:extracker_http,
-                                  [port: 7999],
+                                  [port: port],
                                   %{env: %{dispatch: dispatch}})
 
     children = [

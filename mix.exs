@@ -17,12 +17,14 @@ defmodule Extracker.Mixfile do
   def application do
     [
       extra_applications: [:logger],
+      applications: [:cowboy, :ranch],
       mod: {Extracker.Application, []}
     ]
   end
 
   defp deps do
     [
+      {:cowboy, "~> 2.2"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
     ]

@@ -14,7 +14,10 @@ defmodule Extracker.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [
+      extra_applications: [:logger],
+      mod: {Extracker.Application, []}
+    ]
   end
 
   defp deps do

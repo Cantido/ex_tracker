@@ -9,7 +9,7 @@ defmodule Extracker.Application do
     path = Application.fetch_env!(:extracker, :path)
 
     dispatch = :cowboy_router.compile([
-      {'_', [{path, Extracker.Handler, []}]}
+      {:_, [{path, Extracker.Handler, []}]}
     ])
 
     {:ok, _} = :cowboy.start_clear(:extracker_http,

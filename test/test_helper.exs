@@ -44,4 +44,8 @@ defmodule TestUtils do
   def request_query(peer) do
     %{request(peer) | ip: :inet_parse.ntoa(peer.ip)}
   end
+
+  def peer_ids(response) do
+    Enum.map(response.peers, &Map.get(&1, :peer_id))
+  end
 end

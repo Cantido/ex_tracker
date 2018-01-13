@@ -7,7 +7,7 @@ defmodule Extracker.Application do
     port = Application.fetch_env!(:extracker, :port)
     path = Application.fetch_env!(:extracker, :path)
 
-    {:ok, _} = ExTracker.HTTP.start(:_, port, path)
+    {:ok, _} = Extracker.HTTP.start(:_, port, path)
 
     interval = Application.fetch_env!(:extracker, :interval)
 

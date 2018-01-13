@@ -2,6 +2,10 @@ defmodule ExtrackerTest do
   use ExUnit.Case
   doctest Extracker
 
+  setup do
+    Extracker.set_interval 9_000
+  end
+
   test "valid request turns a map of data" do
     response = Extracker.request TestUtils.request()
 
@@ -19,8 +23,8 @@ defmodule ExtrackerTest do
     Extracker.request first_request
     second_response = Extracker.request second_request
 
-    assert first_peer in second_response.peers
-    assert second_peer in second_response.peers
+    assert first_peer.peer_id in TestUtils.peer_ids(second_response)
+    assert second_peer.peer_id in TestUtils.peer_ids(second_response)
   end
 
   test "peers of other torrents are not returned" do
@@ -33,7 +37,24 @@ defmodule ExtrackerTest do
     Extracker.request first_request
     second_response = Extracker.request second_request
 
-    refute first_peer in second_response.peers
+    refute first_peer.peer_id in TestUtils.peer_ids(second_response)
+  end
+
+  test "peers expire" do
+    Extracker.set_interval(0) # all peers expire immediately
+    Extracker.set_cleanup_interval(100)
+
+    first_peer = TestUtils.peer_one_map()
+    first_request = %{TestUtils.request(first_peer) | info_hash: <<5>>}
+    Extracker.request first_request
+
+    Process.sleep(300)
+
+    second_peer = TestUtils.peer_two_map()
+    second_request = %{TestUtils.request(second_peer) | info_hash: <<5>>}
+    second_response = Extracker.request second_request
+
+    refute first_peer.peer_id in TestUtils.peer_ids(second_response)
   end
 
   test "info_hash is required" do

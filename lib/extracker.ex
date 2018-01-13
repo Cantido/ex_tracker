@@ -1,8 +1,8 @@
 defmodule Extracker do
   use GenServer
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, %{peers: MapSet.new}, name: __MODULE__)
+  def start_link([interval]) do
+    GenServer.start_link(__MODULE__, %{peers: MapSet.new, interval: interval}, name: __MODULE__)
   end
 
   def request(%{info_hash: _, peer_id: _, port: _, uploaded: _, downloaded: _, left: _, ip: _} = req) do
@@ -19,7 +19,7 @@ defmodule Extracker do
     {
       :reply,
       %{
-        interval: 9_000,
+        interval: state.interval,
         peers: MapSet.to_list(peers)
       },
       %{state | peers: peers}

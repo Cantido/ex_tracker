@@ -4,6 +4,7 @@ defmodule Extracker.Application do
   use Application
 
   def start(_type, _args) do
+    interval = Application.fetch_env!(:extracker, :interval)
     port = Application.fetch_env!(:extracker, :port)
     path = Application.fetch_env!(:extracker, :path)
 
@@ -16,7 +17,7 @@ defmodule Extracker.Application do
                                   %{env: %{dispatch: dispatch}})
 
     children = [
-      Extracker
+      {Extracker, [interval]}
     ]
 
     opts = [strategy: :one_for_one, name: Extracker.Supervisor]

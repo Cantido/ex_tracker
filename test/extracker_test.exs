@@ -23,6 +23,19 @@ defmodule ExtrackerTest do
     assert second_peer in second_response.peers
   end
 
+  test "peers of other torrents are not returned" do
+    first_peer = TestUtils.peer_one_map()
+    second_peer = TestUtils.peer_two_map()
+
+    first_request = %{TestUtils.request(first_peer) | info_hash: <<5>>}
+    second_request = %{TestUtils.request(second_peer) | info_hash: <<12>>}
+
+    Extracker.request first_request
+    second_response = Extracker.request second_request
+
+    refute first_peer in second_response.peers
+  end
+
   test "info_hash is required" do
     malformed_request = Map.delete(TestUtils.request(), :info_hash)
     response = Extracker.request malformed_request

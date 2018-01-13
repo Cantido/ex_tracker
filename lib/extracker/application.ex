@@ -4,17 +4,12 @@ defmodule Extracker.Application do
   use Application
 
   def start(_type, _args) do
-    interval = Application.fetch_env!(:extracker, :interval)
     port = Application.fetch_env!(:extracker, :port)
     path = Application.fetch_env!(:extracker, :path)
 
-    dispatch = :cowboy_router.compile([
-      {:_, [{path, Extracker.Handler, []}]}
-    ])
+    {:ok, _} = ExTracker.HTTP.start(:_, port, path)
 
-    {:ok, _} = :cowboy.start_clear(:extracker_http,
-                                  [port: port],
-                                  %{env: %{dispatch: dispatch}})
+    interval = Application.fetch_env!(:extracker, :interval)
 
     children = [
       {Extracker, [interval]}

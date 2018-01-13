@@ -1,4 +1,4 @@
-defmodule Extracker.Handler do
+defmodule Extracker.HTTP.Handler do
   @behaviour :cowboy_handler
 
   def init(req, state) do

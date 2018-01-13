@@ -1,6 +1,6 @@
-defmodule Extracker.HandlerTest do
+defmodule Extracker.HTTP.HandlerTest do
   use ExUnit.Case
-  doctest Extracker.Handler
+  doctest Extracker.HTTP.Handler
 
   test "returns content type of text/plain" do
     {:ok, resp} = HTTPoison.get("localhost:6969", TestUtils.request_query())

@@ -49,6 +49,10 @@ defmodule Extracker.TorrentRegistry do
     %{registry | torrents: torrents1}
   end
 
+  def size(registry) do
+    Map.size(registry.torrents)
+  end
+
   @doc """
   Fetch a torrent from the `registry` by its `info_hash`.
 

@@ -48,7 +48,7 @@ defmodule Extracker do
 
   ## Callbacks
 
-  defstruct torrents: TorrentRegistry.new(),
+  defstruct registry: TorrentRegistry.new(),
             interval: 9_000,
             cleanup_interval: 1_000,
             cleanup_timer: nil
@@ -62,10 +62,10 @@ defmodule Extracker do
     peer = struct(Extracker.Peer, req)
         |> Map.put(:last_announce, System.monotonic_time(:seconds))
 
-    torrents1 = state.torrents
+    registry1 = state.registry
              |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
 
-    peers = TorrentRegistry.lookup(torrents1, info_hash).peers
+    peers = TorrentRegistry.lookup(registry1, info_hash).peers
 
     {
       :reply,
@@ -73,7 +73,7 @@ defmodule Extracker do
         interval: state.interval,
         peers: Enum.to_list(peers)
       },
-      %{state | torrents: torrents1}
+      %{state | registry: registry1}
     }
   end
 
@@ -106,12 +106,12 @@ defmodule Extracker do
   end
 
   defp clean(state) do
-    torrents1 =
+    registry1 =
       TorrentRegistry.clean_torrents(
-        state.torrents,
+        state.registry,
         state.interval,
         System.monotonic_time(:seconds))
 
-    %{state | torrents: torrents1}
+    %{state | registry: registry1}
   end
 end

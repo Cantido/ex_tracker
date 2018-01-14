@@ -1,6 +1,11 @@
 defmodule Extracker.HTTP.Handler do
+  @moduledoc """
+  Handle THP connections.
+  """
   @behaviour :cowboy_handler
 
+  ## Callbacks
+  
   def init(req, state) do
 
     res = :cowboy_req.reply(

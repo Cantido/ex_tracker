@@ -3,17 +3,40 @@ alias Extracker.TorrentRegistry
 defmodule Extracker do
   use GenServer
 
+  @moduledoc """
+  A fast & scaleable BitTorrent tracker.
+  """
+
+  ## API
+
+  @doc """
+  Start the tracker server. Peer announcements will expire after `interval`
+  seconds, unless they announce themselves again.
+  """
+  def start_link(opts)
   def start_link([interval]) do
     GenServer.start_link(__MODULE__, interval, name: __MODULE__)
   end
 
+  @doc """
+  Set the number of seconds `i` that a peer will expire after.
+  """
   def set_interval(i) when i >= 0 do
     GenServer.call(__MODULE__, {:set_interval, i})
   end
 
+  @doc """
+  Set the number of milliseconds `i` that the server will wait before
+  removing expired peers.
+  """
   def set_cleanup_interval(i) when i > 0 do
     GenServer.call(__MODULE__, {:set_cleanup_interval, i})
   end
+
+  @doc """
+  Announce a peer to the tracker.
+  """
+  def request(req)
 
   def request(%{info_hash: _, peer_id: _, port: _, uploaded: _, downloaded: _, left: _, ip: _} = req) do
     GenServer.call(__MODULE__, {:announce, req})
@@ -22,6 +45,8 @@ defmodule Extracker do
   def request(_req) do
     %{ failure_reason: "invalid request" }
   end
+
+  ## Callbacks
 
   defstruct torrents: TorrentRegistry.new(),
             interval: 9_000,

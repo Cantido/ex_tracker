@@ -10,7 +10,16 @@ defmodule Extracker.Mixfile do
       start_permanent: Mix.env == :prod,
       deps: deps(),
       package: package(),
-      dialyzer: [ flags: ["-Wunmatched_returns", :error_handling, :race_conditions, :underspecs]]
+      dialyzer: [ flags: ["-Wunmatched_returns", :error_handling, :race_conditions, :underspecs]],
+
+      # Docs
+      name: "Extracker",
+      source_url: "https://github.com/Cantido/ex_tracker",
+      docs: [
+        extras: [
+          "README.md": [title: "README"]
+        ]
+      ]
     ]
   end
 

@@ -8,6 +8,11 @@ defmodule Extracker.TorrentRegistry do
 
   @doc """
   Create a new registry.
+
+  ## Examples
+
+      iex> Extracker.TorrentRegistry.new()
+      %Extracker.TorrentRegistry{}
   """
   def new do
     %Extracker.TorrentRegistry{}
@@ -18,6 +23,21 @@ defmodule Extracker.TorrentRegistry do
 
   If the torrent identified by `info_hash` does not exist yet, then it will
   be created.
+
+  ## Examples
+
+      iex> registry = Extracker.TorrentRegistry.new()
+      iex> peer = Extracker.Peer.new(<<0>>)
+      iex> info_hash = <<20>>
+      iex> size(registry.torrents)
+      0
+      iex> registry1 = Extracker.TorrentRegistry.add_peer_to_torrent(registry, info_hash, peer)
+      iex> size(registry1.torrents)
+      1
+      iex> another_peer = Extracker.Peer.new(<<1>>)
+      iex> registry2 = ExTracker.TorrentRegistry.add_peer_to_torrent(registry, info_hash, another_peer)
+      iex> size(registry2.torrents)
+      1
   """
   def add_peer_to_torrent(registry, info_hash, peer) do
     torrents1 = Map.update(

@@ -1,3 +1,5 @@
+alias Extracker.TorrentRegistry
+
 defmodule ExtrackerTest do
   use ExUnit.Case
   doctest Extracker
@@ -14,30 +16,39 @@ defmodule ExtrackerTest do
   end
 
   test "register and retrieve a peer" do
-    first_peer = TestUtils.peer_one_map()
-    second_peer = TestUtils.peer_two_map()
+    state = tracker_with_peer(<<0>>, TestUtils.peer_one_map())
+    request = TestUtils.request(TestUtils.peer_two_map())
 
-    first_request = TestUtils.request(first_peer)
-    second_request = TestUtils.request(second_peer)
+    {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
 
-    Extracker.request first_request
-    second_response = Extracker.request second_request
+    assert length(reply.peers) == 2
+    assert TorrentRegistry.size(state1.registry) == 1
 
-    assert first_peer.peer_id in TestUtils.peer_ids(second_response)
-    assert second_peer.peer_id in TestUtils.peer_ids(second_response)
+    peers = TorrentRegistry.lookup(state1.registry, <<0>>).peers
+    assert MapSet.size(peers) == 2
+  end
+
+  defp tracker_with_peer(info_hash, peer) do
+    %Extracker{
+      registry: TorrentRegistry.new()
+        |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
+    }
   end
 
   test "peers of other torrents are not returned" do
-    first_peer = TestUtils.peer_one_map()
-    second_peer = TestUtils.peer_two_map()
+    state = tracker_with_peer(<<0>>, TestUtils.peer_one_map())
+    request = %{TestUtils.request() | info_hash: <<12>>}
 
-    first_request = %{TestUtils.request(first_peer) | info_hash: <<5>>}
-    second_request = %{TestUtils.request(second_peer) | info_hash: <<12>>}
+    {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
 
-    Extracker.request first_request
-    second_response = Extracker.request second_request
+    assert length(reply.peers) == 1
+    assert TorrentRegistry.size(state1.registry) == 2
 
-    refute first_peer.peer_id in TestUtils.peer_ids(second_response)
+    peers = TorrentRegistry.lookup(state1.registry, <<0>>).peers
+    assert MapSet.size(peers) == 1
+
+    peers2 = TorrentRegistry.lookup(state1.registry, <<12>>).peers
+    assert MapSet.size(peers2) == 1
   end
 
   test "peers expire" do

@@ -63,10 +63,10 @@ defmodule Extracker.Torrent do
   end
 
   defp reject_peers(torrent, fun) do
-    %{torrent | peers: reject_peers_mapset(torrent.peers, fun) }
+    %{torrent | peers: reject_peers_map(torrent.peers, fun) }
   end
 
-  defp reject_peers_mapset(peers, fun) do
+  defp reject_peers_map(peers, fun) do
     Enum.reject(peers, fun) |> Map.new()
   end
 end

@@ -1,4 +1,4 @@
-alias Extracker.TorrentRegistry
+alias Extracker.{TorrentRegistry, Torrent}
 
 defmodule Extracker do
   use GenServer
@@ -69,8 +69,8 @@ defmodule Extracker do
     registry1 = state.registry
              |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
 
-    peers = TorrentRegistry.lookup(registry1, info_hash).peers
-          |> Map.values()
+    peers = TorrentRegistry.lookup(registry1, info_hash)
+          |> Torrent.peers()
           |> strip_peers()
 
     {

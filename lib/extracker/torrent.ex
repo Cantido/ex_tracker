@@ -44,6 +44,10 @@ defmodule Extracker.Torrent do
     Map.fetch(torrent.peers, peer_id)
   end
 
+  def peers(torrent) do
+    Map.values(torrent.peers)
+  end
+
   @doc """
   Drop all tracked peers from `torrent` that are older than `max_age`.
 

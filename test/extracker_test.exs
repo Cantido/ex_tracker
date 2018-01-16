@@ -28,6 +28,15 @@ defmodule ExtrackerTest do
     assert MapSet.size(peers) == 2
   end
 
+  test "peers are stripped of unused data" do
+    request = TestUtils.request()
+
+    {:reply, reply, _} = Extracker.handle_call({:announce, request}, {}, Extracker.new())
+
+    assert [peer | _] = reply.peers
+    assert Map.keys(peer) == [:ip, :peer_id, :port]
+  end
+
   defp tracker_with_peer(info_hash, peer) do
     %Extracker{
       registry: TorrentRegistry.new()

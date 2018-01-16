@@ -65,7 +65,7 @@ defmodule Extracker do
     registry1 = state.registry
              |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
 
-    peers = TorrentRegistry.lookup(registry1, info_hash).peers
+    peers = TorrentRegistry.lookup(registry1, info_hash).peers |> strip_peers()
 
     {
       :reply,
@@ -93,6 +93,11 @@ defmodule Extracker do
   def handle_info(:clean, state) do
     state1 = state |> clean() |> schedule_cleanup()
     {:noreply, state1}
+  end
+
+  # Strip extra data from peers that we don't want in the return value
+  defp strip_peers(peers) do
+    Enum.map(peers, &Map.take(&1, [:ip, :peer_id, :port]))
   end
 
   defp cancel_cleanup(state) do

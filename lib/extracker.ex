@@ -69,7 +69,9 @@ defmodule Extracker do
     registry1 = state.registry
              |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
 
-    peers = TorrentRegistry.lookup(registry1, info_hash).peers |> strip_peers()
+    peers = TorrentRegistry.lookup(registry1, info_hash).peers
+          |> Map.values()
+          |> strip_peers()
 
     {
       :reply,

@@ -5,7 +5,7 @@ defmodule Extracker.Torrent do
   Functions for manipulating tracked torrents.
   """
 
-  defstruct peers: MapSet.new
+  defstruct peers: Map.new
 
   @doc """
   Create a new torrent with no peers.
@@ -21,34 +21,27 @@ defmodule Extracker.Torrent do
   end
 
   @doc """
-  Create a new torrent that is tracking the given `peers`.
-
-  ## Examples
-
-      iex> peer = Extracker.Peer.new(<<0>>)
-      iex> torrent = Extracker.Torrent.new([peer])
-      iex> Enum.to_list(torrent.peers)
-      [%Extracker.Peer{ip: {0, 0, 0, 0}, last_announce: :never, peer_id: <<0>>, port: 0}]
   """
   def new(peers) when is_list(peers) do
-    %Extracker.Torrent{peers: MapSet.new(peers)}
+    %Extracker.Torrent{peers: Map.new(peers, fn(x) -> {x.peer_id, x} end)}
+  end
+
+  def size(torrent) do
+    map_size(torrent.peers)
   end
 
   @doc """
   Add a `peer` to a `torrent`'s list of tracked peers.
-
-  ## Examples
-
-      iex> peer = Extracker.Peer.new(<<0>>)
-      iex> torrent = Extracker.Torrent.new()
-      iex> Enum.to_list(torrent.peers)
-      []
-      iex> torrent1 = Extracker.Torrent.add_peer(torrent, peer)
-      iex> Enum.to_list(torrent1.peers)
-      [%Extracker.Peer{ip: {0, 0, 0, 0}, last_announce: :never, peer_id: <<0>>, port: 0}]
   """
   def add_peer(torrent, peer) do
-    %{torrent | peers: MapSet.put(torrent.peers, peer)}
+
+    peers1 = Map.put(torrent.peers, peer.peer_id, peer)
+
+    %{torrent | peers: peers1}
+  end
+
+  def fetch_peer(torrent, peer_id) do
+    Map.fetch(torrent.peers, peer_id)
   end
 
   @doc """
@@ -58,20 +51,9 @@ defmodule Extracker.Torrent do
   the current time. That value is much more stable and useful for
   age comparisons. Be careful that the time unit of `max_age` is the same
   as the unit of `current_time`.
-
-  ## Examples
-
-      iex> peer = Extracker.Peer.new(<<0>>, 0)
-      iex> torrent = Extracker.Torrent.new([peer])
-      iex> Enum.to_list(torrent.peers)
-      [%Extracker.Peer{ip: {0, 0, 0, 0}, last_announce: 0, peer_id: <<0>>, port: 0}]
-      iex> torrent1 = Extracker.Torrent.drop_old_peers(torrent, 5, 10)
-      iex> Enum.to_list(torrent1.peers)
-      []
-
   """
   def drop_old_peers(torrent, max_age, current_time) do
-    too_old_filter = &Peer.too_old?(&1, max_age, current_time)
+    too_old_filter = fn({_id, x}) -> Peer.too_old?(x, max_age, current_time) end
 
     reject_peers(torrent, too_old_filter)
   end
@@ -81,6 +63,6 @@ defmodule Extracker.Torrent do
   end
 
   defp reject_peers_mapset(peers, fun) do
-    Enum.reject(peers, fun) |> MapSet.new()
+    Enum.reject(peers, fun) |> Map.new()
   end
 end

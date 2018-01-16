@@ -1,4 +1,4 @@
-alias Extracker.TorrentRegistry
+alias Extracker.{TorrentRegistry, Torrent}
 
 defmodule ExtrackerTest do
   use ExUnit.Case
@@ -26,8 +26,8 @@ defmodule ExtrackerTest do
     assert length(reply.peers) == 2
     assert TorrentRegistry.size(state1.registry) == 1
 
-    peers = TorrentRegistry.lookup(state1.registry, <<0>>).peers
-    assert MapSet.size(peers) == 2
+    torrent = TorrentRegistry.lookup(state1.registry, <<0>>)
+    assert Torrent.size(torrent) == 2
   end
 
   test "peers are stripped of unused data" do
@@ -59,11 +59,11 @@ defmodule ExtrackerTest do
     assert length(reply.peers) == 1
     assert TorrentRegistry.size(state1.registry) == 2
 
-    peers = TorrentRegistry.lookup(state1.registry, <<0>>).peers
-    assert MapSet.size(peers) == 1
+    torrent = TorrentRegistry.lookup(state1.registry, <<0>>)
+    assert Torrent.size(torrent) == 1
 
-    peers2 = TorrentRegistry.lookup(state1.registry, <<12>>).peers
-    assert MapSet.size(peers2) == 1
+    torrent = TorrentRegistry.lookup(state1.registry, <<12>>)
+    assert Torrent.size(torrent) == 1
   end
 
   test "peers expire" do

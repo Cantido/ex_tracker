@@ -13,9 +13,8 @@ defmodule Extracker do
   Start the tracker server. Peer announcements will expire after `interval`
   seconds, unless they announce themselves again.
   """
-  def start_link(opts)
-  def start_link([interval]) do
-    GenServer.start_link(__MODULE__, interval, name: __MODULE__)
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
   @doc """
@@ -57,7 +56,7 @@ defmodule Extracker do
     %Extracker{}
   end
 
-  def init(interval) do
+  def init([interval: interval]) do
     state = %{new() | interval: interval} |> schedule_cleanup()
     {:ok, state}
   end

@@ -12,7 +12,7 @@ defmodule Extracker.Application do
     interval = Application.fetch_env!(:extracker, :interval)
 
     children = [
-      {Extracker, [interval]}
+      {Extracker, [interval: interval]}
     ]
 
     opts = [strategy: :one_for_one, name: Extracker.Supervisor]

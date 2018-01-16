@@ -83,52 +83,20 @@ defmodule ExtrackerTest do
     refute first_peer.peer_id in TestUtils.peer_ids(second_response)
   end
 
-  test "info_hash is required" do
-    malformed_request = Map.delete(TestUtils.request(), :info_hash)
-    response = Extracker.request malformed_request
+  test "info_hash is required", do: assert_key_required(:info_hash)
+  test "peer ID is required", do: assert_key_required(:peer_id)
+  test "port number is required", do: assert_key_required(:port)
+  test "uploaded is required", do: assert_key_required(:uploaded)
+  test "downloaded is required", do: assert_key_required(:downloaded)
+  test "left is required", do: assert_key_required(:left)
+  test "ip is required", do: assert_key_required(:ip)
 
-    assert response == %{failure_reason: "invalid request"}
+  defp assert_key_required(key) do
+    assert request_with_missing(key) == %{failure_reason: "invalid request"}
   end
 
-  test "peer ID is required" do
-    malformed_request = Map.delete(TestUtils.request(), :peer_id)
-    response = Extracker.request malformed_request
-
-    assert response == %{failure_reason: "invalid request"}
-  end
-
-  test "port number is required" do
-    malformed_request = Map.delete(TestUtils.request(), :port)
-    response = Extracker.request malformed_request
-
-    assert response == %{failure_reason: "invalid request"}
-  end
-
-  test "uploaded is required" do
-    malformed_request = Map.delete(TestUtils.request(), :uploaded)
-    response = Extracker.request malformed_request
-
-    assert response == %{failure_reason: "invalid request"}
-  end
-
-  test "downloaded is required" do
-    malformed_request = Map.delete(TestUtils.request(), :downloaded)
-    response = Extracker.request malformed_request
-
-    assert response == %{failure_reason: "invalid request"}
-  end
-
-  test "left is required" do
-    malformed_request = Map.delete(TestUtils.request(), :left)
-    response = Extracker.request malformed_request
-
-    assert response == %{failure_reason: "invalid request"}
-  end
-
-  test "ip is required" do
-    malformed_request = Map.delete(TestUtils.request(), :ip)
-    response = Extracker.request malformed_request
-
-    assert response == %{failure_reason: "invalid request"}
+  defp request_with_missing(key) do
+    malformed_request = Map.delete(TestUtils.request(), key)
+    Extracker.request malformed_request
   end
 end

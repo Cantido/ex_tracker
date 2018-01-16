@@ -56,8 +56,12 @@ defmodule Extracker do
     %Extracker{}
   end
 
-  def init([interval: interval]) do
-    state = %{new() | interval: interval} |> schedule_cleanup()
+  def init([interval: interval, cleanup_interval: cleanup_interval]) do
+    state = %{
+      new() |
+        interval: interval,
+        cleanup_interval: cleanup_interval
+      } |> schedule_cleanup()
     {:ok, state}
   end
 

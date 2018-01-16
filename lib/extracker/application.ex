@@ -4,18 +4,22 @@ defmodule Extracker.Application do
   use Application
 
   def start(_type, _args) do
-    port = Application.fetch_env!(:extracker, :port)
-    path = Application.fetch_env!(:extracker, :path)
+    {:ok, _} = Extracker.HTTP.start(cfg(:host), cfg(:port), cfg(:path))
 
-    {:ok, _} = Extracker.HTTP.start(:_, port, path)
-
-    interval = Application.fetch_env!(:extracker, :interval)
+    extracker_opts = [
+      interval: cfg(:interval),
+      cleanup_interval: cfg(:cleanup_interval)
+    ]
 
     children = [
-      {Extracker, [interval: interval]}
+      {Extracker, extracker_opts}
     ]
 
     opts = [strategy: :one_for_one, name: Extracker.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp cfg(key) do
+    Application.fetch_env!(:extracker, key)
   end
 end

@@ -10,7 +10,7 @@ defmodule Extracker do
   ## API
 
   @doc """
-  Start the tracker server. Peer announcements will expire after `interval`
+  Start the tracker server. Peer announcements will expire after `interval_s`
   seconds, unless they announce themselves again.
   """
   def start_link(opts) do
@@ -48,19 +48,19 @@ defmodule Extracker do
   ## Callbacks
 
   defstruct registry: TorrentRegistry.new(),
-            interval: 9_000,
-            cleanup_interval: 1_000,
+            interval_s: 9_000,
+            cleanup_interval_ms: 1_000,
             cleanup_timer: nil
 
   def new do
     %Extracker{}
   end
 
-  def init([interval: interval, cleanup_interval: cleanup_interval]) do
+  def init([interval_s: interval_s, cleanup_interval_ms: cleanup_interval_ms]) do
     state = %{
       new() |
-        interval: interval,
-        cleanup_interval: cleanup_interval
+        interval_s: interval_s,
+        cleanup_interval_ms: cleanup_interval_ms
       } |> schedule_cleanup()
     {:ok, state}
   end
@@ -79,7 +79,7 @@ defmodule Extracker do
     {
       :reply,
       %{
-        interval: state.interval,
+        interval_s: state.interval_s,
         peers: Enum.to_list(peers)
       },
       %{state | registry: registry1}
@@ -87,13 +87,13 @@ defmodule Extracker do
   end
 
   def handle_call({:set_interval, i}, _from, state) do
-    {:reply, :ok, %{state | interval: i}}
+    {:reply, :ok, %{state | interval_s: i}}
   end
 
   def handle_call({:set_cleanup_interval, i}, _from, state) do
     state1 = state
           |> cancel_cleanup()
-          |> Map.put(:cleanup_interval, i)
+          |> Map.put(:cleanup_interval_ms, i)
           |> schedule_cleanup()
 
     {:reply, :ok, state1}
@@ -115,7 +115,7 @@ defmodule Extracker do
   end
 
   defp schedule_cleanup(state) do
-    timer = Process.send_after(self(), :clean, state.cleanup_interval)
+    timer = Process.send_after(self(), :clean, state.cleanup_interval_ms)
     %{state | cleanup_timer: timer}
   end
 
@@ -123,7 +123,7 @@ defmodule Extracker do
     registry1 =
       TorrentRegistry.clean_torrents(
         state.registry,
-        state.interval,
+        state.interval_s,
         System.monotonic_time(:seconds))
 
     %{state | registry: registry1}

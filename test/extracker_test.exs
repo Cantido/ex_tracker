@@ -4,16 +4,16 @@ defmodule ExtrackerTest do
   use ExUnit.Case
   doctest Extracker
 
-  @interval 9_001
+  @interval_s 9_001
 
   setup do
-    Extracker.set_interval @interval
+    Extracker.set_interval @interval_s
   end
 
   test "valid request turns a map of data" do
     response = Extracker.request TestUtils.request()
 
-    assert response.interval == @interval
+    assert response.interval_s == @interval_s
     assert is_list response.peers
   end
 

@@ -7,8 +7,8 @@ defmodule Extracker.Application do
     {:ok, _} = Extracker.HTTP.start(cfg(:host), cfg(:port), cfg(:path))
 
     extracker_opts = [
-      interval: cfg(:interval),
-      cleanup_interval: cfg(:cleanup_interval)
+      interval_s: cfg(:interval_s),
+      cleanup_interval_ms: cfg(:cleanup_interval_ms)
     ]
 
     children = [

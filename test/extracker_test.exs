@@ -4,15 +4,17 @@ defmodule ExtrackerTest do
   use ExUnit.Case
   doctest Extracker
 
+  @interval 9_001
+
   setup do
-    Extracker.set_interval 9_000
+    Extracker.set_interval @interval
   end
 
   test "valid request turns a map of data" do
     response = Extracker.request TestUtils.request()
 
-    assert response.interval == 9_000
-    assert response.peers != nil
+    assert response.interval == @interval
+    assert is_list response.peers
   end
 
   test "register and retrieve a peer" do
@@ -39,9 +41,13 @@ defmodule ExtrackerTest do
 
   defp tracker_with_peer(info_hash, peer) do
     %Extracker{
-      registry: TorrentRegistry.new()
-        |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
+      registry: registry_with_peer(info_hash, peer)
     }
+  end
+
+  defp registry_with_peer(info_hash, peer) do
+    TorrentRegistry.new()
+      |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
   end
 
   test "peers of other torrents are not returned" do

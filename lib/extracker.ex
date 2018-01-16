@@ -53,8 +53,12 @@ defmodule Extracker do
             cleanup_interval: 1_000,
             cleanup_timer: nil
 
+  def new do
+    %Extracker{}
+  end
+
   def init(interval) do
-    state = %Extracker{interval: interval} |> schedule_cleanup()
+    state = %{new() | interval: interval} |> schedule_cleanup()
     {:ok, state}
   end
 

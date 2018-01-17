@@ -34,6 +34,7 @@ defmodule Extracker.Mixfile do
     [
       {:cowboy, "~> 2.2"},
       {:httpoison, "~> 1.0"},
+      {:ex_bencode, "~> 2.0"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false}
     ]

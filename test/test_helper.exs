@@ -42,7 +42,7 @@ defmodule TestUtils do
   end
 
   def request_query(peer) do
-    %{request(peer) | ip: :inet_parse.ntoa(peer.ip)}
+    %{request(peer) | ip: "127.0.0.1"}
   end
 
   def peer_ids(response) do

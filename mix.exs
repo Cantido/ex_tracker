@@ -33,7 +33,7 @@ defmodule Extracker.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 2.2"},
-      {:httpoison, "~> 1.0"},
+      {:httpotion, "~> 3.0.2"},
       {:ex_bencode, "~> 2.0"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false}

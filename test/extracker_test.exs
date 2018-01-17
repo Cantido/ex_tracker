@@ -1,4 +1,5 @@
 alias Extracker.{TorrentRegistry, Torrent}
+import TestHelper
 
 defmodule ExtrackerTest do
   use ExUnit.Case
@@ -11,15 +12,15 @@ defmodule ExtrackerTest do
   end
 
   test "valid request turns a map of data" do
-    response = Extracker.request TestUtils.request()
+    response = Extracker.request request()
 
     assert response.interval == @interval
     assert is_list response.peers
   end
 
   test "register and retrieve a peer" do
-    state = tracker_with_peer(<<0>>, TestUtils.peer_one_map())
-    request = TestUtils.request(TestUtils.peer_two_map())
+    state = tracker_with_peer(<<0>>, peer_one_map())
+    request = request(peer_two_map())
 
     {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
 
@@ -31,7 +32,7 @@ defmodule ExtrackerTest do
   end
 
   test "peers are stripped of unused data" do
-    request = TestUtils.request()
+    request = request()
 
     {:reply, reply, _} = Extracker.handle_call({:announce, request}, {}, Extracker.new())
 
@@ -51,8 +52,8 @@ defmodule ExtrackerTest do
   end
 
   test "peers of other torrents are not returned" do
-    state = tracker_with_peer(<<0>>, TestUtils.peer_one_map())
-    request = %{TestUtils.request() | info_hash: <<12>>}
+    state = tracker_with_peer(<<0>>, peer_one_map())
+    request = %{request() | info_hash: <<12>>}
 
     {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
 
@@ -70,63 +71,63 @@ defmodule ExtrackerTest do
     Extracker.set_interval(0) # all peers expire immediately
     Extracker.set_cleanup_interval(100)
 
-    first_peer = TestUtils.peer_one_map()
-    first_request = %{TestUtils.request(first_peer) | info_hash: <<5>>}
+    first_peer = peer_one_map()
+    first_request = %{request(first_peer) | info_hash: <<5>>}
     Extracker.request first_request
 
     Process.sleep(300)
 
-    second_peer = TestUtils.peer_two_map()
-    second_request = %{TestUtils.request(second_peer) | info_hash: <<5>>}
+    second_peer = peer_two_map()
+    second_request = %{request(second_peer) | info_hash: <<5>>}
     second_response = Extracker.request second_request
 
-    refute first_peer.peer_id in TestUtils.peer_ids(second_response)
+    refute first_peer.peer_id in peer_ids(second_response)
   end
 
   test "info_hash is required" do
-    malformed_request = Map.delete(TestUtils.request(), :info_hash)
+    malformed_request = Map.delete(request(), :info_hash)
     response = Extracker.request malformed_request
 
     assert response == %{failure_reason: "invalid request"}
   end
 
   test "peer ID is required" do
-    malformed_request = Map.delete(TestUtils.request(), :peer_id)
+    malformed_request = Map.delete(request(), :peer_id)
     response = Extracker.request malformed_request
 
     assert response == %{failure_reason: "invalid request"}
   end
 
   test "port number is required" do
-    malformed_request = Map.delete(TestUtils.request(), :port)
+    malformed_request = Map.delete(request(), :port)
     response = Extracker.request malformed_request
 
     assert response == %{failure_reason: "invalid request"}
   end
 
   test "uploaded is required" do
-    malformed_request = Map.delete(TestUtils.request(), :uploaded)
+    malformed_request = Map.delete(request(), :uploaded)
     response = Extracker.request malformed_request
 
     assert response == %{failure_reason: "invalid request"}
   end
 
   test "downloaded is required" do
-    malformed_request = Map.delete(TestUtils.request(), :downloaded)
+    malformed_request = Map.delete(request(), :downloaded)
     response = Extracker.request malformed_request
 
     assert response == %{failure_reason: "invalid request"}
   end
 
   test "left is required" do
-    malformed_request = Map.delete(TestUtils.request(), :left)
+    malformed_request = Map.delete(request(), :left)
     response = Extracker.request malformed_request
 
     assert response == %{failure_reason: "invalid request"}
   end
 
   test "ip is required" do
-    malformed_request = Map.delete(TestUtils.request(), :ip)
+    malformed_request = Map.delete(request(), :ip)
     response = Extracker.request malformed_request
 
     assert response == %{failure_reason: "invalid request"}

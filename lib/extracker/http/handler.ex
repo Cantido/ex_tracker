@@ -4,10 +4,13 @@ defmodule Extracker.HTTP.Handler do
   """
   @behaviour :cowboy_handler
   require ExBencode
+  require Logger
 
   ## Callbacks
 
   def init(req, state) do
+    Logger.info("Handling request #{inspect(req, pretty: true)}")
+
     with {:ok, query_result} <- query(req),
          {:ok, body} <- ExBencode.encode(query_result),
          res <- response(body, req)

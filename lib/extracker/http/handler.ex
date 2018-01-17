@@ -13,7 +13,8 @@ defmodule Extracker.HTTP.Handler do
 
     with {:ok, query_result} <- query(req),
          {:ok, body} <- ExBencode.encode(query_result),
-         res <- response(body, req)
+         res <- response(body, req),
+         :ok = Logger.debug "Response body: #{inspect(body, pretty: true)}"
     do
       {:ok, res, state}
     else

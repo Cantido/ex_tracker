@@ -1,3 +1,5 @@
+alias Extracker.HTTP.{IPAddressConstraint, Format}
+
 defmodule Extracker.HTTP.Handler do
   @moduledoc """
   Handle THP connections.
@@ -13,7 +15,7 @@ defmodule Extracker.HTTP.Handler do
 
     with {:ok, query_params} <- query_params(req),
          {:ok, query_result} <- query(query_params),
-         {:ok, post_process} <- compact(query_params, query_result),
+         {:ok, post_process} <- Format.format(query_params, query_result),
          {:ok, body} <- ExBencode.encode(post_process),
          res <- response(body, req),
          :ok = Logger.debug "Response body: #{inspect(body, pretty: true)}"
@@ -22,20 +24,6 @@ defmodule Extracker.HTTP.Handler do
     else
       _ -> {:ok, failure_body(req), state}
     end
-  end
-
-  def compact(%{compact: 1}, query_result) do
-    peers = Enum.map(query_result.peers, &compact_peer(&1)) |> Enum.join()
-    IO.puts "Peers: #{inspect(peers)}"
-    {:ok, %{query_result | peers: peers}}
-  end
-
-  def compact(_query_params, query_result) do
-    {:ok, query_result}
-  end
-
-  def compact_peer(%{peer_id: _, ip: {a, b, c, d}, port: port}) do
-    <<a, b, c, d, port :: 16>>
   end
 
   defp query(params) do
@@ -52,7 +40,7 @@ defmodule Extracker.HTTP.Handler do
       {:uploaded, :int},
       {:downloaded, :int},
       {:left, :int},
-      {:ip, [], source_ip},
+      {:ip, &IPAddressConstraint.ip_address/2, source_ip},
       {:compact, :int, 0}
     ]
 

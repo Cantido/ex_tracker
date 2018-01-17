@@ -21,8 +21,29 @@ defmodule Extracker.HTTP.Handler do
     end
   end
 
-  defp query(_req) do
-    :error
+  defp query(req) do
+    with {:ok, params} <- query_params(req)
+    do
+      {:ok, Extracker.request(params)}
+    else
+      _ -> :error
+    end
+  end
+
+  defp query_params(req) do
+    {source_ip, _source_port} = :cowboy_req.peer(req)
+
+    params = [
+      {:info_hash, :nonempty},
+      {:peer_id, :nonempty},
+      {:port, :int},
+      {:uploaded, :int},
+      {:downloaded, :int},
+      {:left, :int},
+      {:ip, [], source_ip}
+    ]
+
+    {:ok, :cowboy_req.match_qs(params, req)}
   end
 
   defp failure_body(req) do

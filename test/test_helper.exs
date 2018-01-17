@@ -48,4 +48,8 @@ defmodule TestUtils do
   def peer_ids(response) do
     Enum.map(response.peers, &Map.get(&1, :peer_id))
   end
+
+  def real_request do
+    "info_hash=%d2%e5%3f%b6%03e-%99%19%91%b6%ad%23W%a7%a2%84ZS%19&peer_id=-TR2920-ytgm4shu94ut&port=51413&uploaded=0&downloaded=0&left=1899528192&numwant=0&key=73efbcef&compact=1&supportcrypto=1&event=stopped"
+  end
 end

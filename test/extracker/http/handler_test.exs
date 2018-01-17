@@ -44,4 +44,13 @@ defmodule Extracker.HTTP.HandlerTest do
 
     assert resp.status_code == 200
   end
+
+  test "compacts peers, if requested" do
+    body = req(Map.put(request_query(), "compact", 1)).body
+    {:ok, body_data} = ExBencode.decode(body)
+
+    expected_peer = <<127, 0, 0, 1, 8001 :: 16>>
+
+    assert body_data["peers"] == expected_peer
+  end
 end

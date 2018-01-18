@@ -1,4 +1,7 @@
 alias Extracker.HTTP.{IPAddressConstraint, Format}
+alias Extracker.HTTP.Logging, as: HTTPLogging
+alias Extracker.HTTP.Handler.Ring
+alias Extracker.HTTP.Handler.Ring.Response
 
 defmodule Extracker.HTTP.Handler do
   @moduledoc """
@@ -11,24 +14,38 @@ defmodule Extracker.HTTP.Handler do
   ## Callbacks
 
   def init(req, state) do
-    Logger.info("Handling request #{inspect(req, pretty: true)}")
-
-    with {:ok, query_params} <- query_params(req),
-         :ok <- Logger.debug("Parsed query parameters: #{pretty_params(query_params)}"),
-         {:ok, query_result} <- query(query_params),
-         {:ok, post_process} <- Format.format(query_params, query_result),
-         {:ok, body} <- ExBencode.encode(post_process),
-         res <- response(body, req),
-         :ok = Logger.debug "Response body: #{inspect(body, pretty: true)}"
-    do
-      {:ok, res, state}
-    else
-      _ -> {:ok, failure_body(req), state}
-    end
+    app().(req, state)
   end
 
-  defp query(params) do
-    {:ok, Extracker.request(params)}
+  def app do
+    (&handler/1)
+      |> middleware()
+      |> Ring.app()
+  end
+
+  def middleware(handler) do
+    handler
+      |> Extracker.BEP.CompactPeers.handler()
+      |> bencode_body()
+      |> HTTPLogging.handler()
+      |> wrap_params()
+  end
+
+  def handler(req) do
+    {
+      :ok,
+      %{
+        status: 200,
+        body: Extracker.request(req.query_params)
+      }
+    }
+  end
+
+  defp wrap_params(handler) do
+    fn(req) ->
+      {:ok, new_query_params} = query_params(req.cowboy_request)
+      handler.(Map.put(req, :query_params, new_query_params))
+    end
   end
 
   defp query_params(req) do
@@ -48,30 +65,23 @@ defmodule Extracker.HTTP.Handler do
     {:ok, :cowboy_req.match_qs(params, req)}
   end
 
-  defp pretty_params(params) do
-    params
-      |> Map.update!(:info_hash, &Base.encode16/1)
-      |> Map.update!(:ip, &to_string(:inet.ntoa(&1)))
-      |> Map.update!(:downloaded, &in_bytes/1)
-      |> Map.update!(:uploaded, &in_bytes/1)
-      |> Map.update!(:left, &in_bytes/1)
-      |> inspect(pretty: true)
+
+  defp bencode_body(handler) do
+    fn(req) ->
+      {:ok, %{body: _} = resp} = handler.(req)
+
+      bencoded_response = resp
+        |> Response.update_body(&bencode/1)
+        |> Response.add_header("content-type", "text/plain")
+
+      {:ok, bencoded_response}
+    end
   end
 
-  defp in_bytes(i) when is_integer(i) do
-    to_string(i) <> "B"
-  end
-
-  defp failure_body(req) do
-    response "d14:failure reason19:service unavailablee", req
-  end
-
-  defp response(body, req) do
-    :cowboy_req.reply(
-      200,
-      %{"content-type" => "text/plain"},
-      body,
-      req
-    )
+  defp bencode(term) do
+    case ExBencode.encode(term) do
+      {:ok, str} -> str
+      err -> err
+    end
   end
 end

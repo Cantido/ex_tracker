@@ -14,6 +14,7 @@ defmodule Extracker.HTTP.Handler do
     Logger.info("Handling request #{inspect(req, pretty: true)}")
 
     with {:ok, query_params} <- query_params(req),
+         :ok <- Logger.debug("Parsed query parameters: #{pretty_params(query_params)}"),
          {:ok, query_result} <- query(query_params),
          {:ok, post_process} <- Format.format(query_params, query_result),
          {:ok, body} <- ExBencode.encode(post_process),
@@ -45,6 +46,20 @@ defmodule Extracker.HTTP.Handler do
     ]
 
     {:ok, :cowboy_req.match_qs(params, req)}
+  end
+
+  defp pretty_params(params) do
+    params
+      |> Map.update!(:info_hash, &Base.encode16/1)
+      |> Map.update!(:ip, &to_string(:inet.ntoa(&1)))
+      |> Map.update!(:downloaded, &in_bytes/1)
+      |> Map.update!(:uploaded, &in_bytes/1)
+      |> Map.update!(:left, &in_bytes/1)
+      |> inspect(pretty: true)
+  end
+
+  defp in_bytes(i) when is_integer(i) do
+    to_string(i) <> "B"
   end
 
   defp failure_body(req) do

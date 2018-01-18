@@ -20,7 +20,6 @@ defmodule Extracker.BEP.CompactPeers do
   defp format_peers(body) do
     case Format.format(body) do
       {:ok, str} -> str
-      err -> err
     end
   end
 

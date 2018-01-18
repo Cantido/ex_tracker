@@ -81,7 +81,6 @@ defmodule Extracker.HTTP.Handler do
   defp bencode(term) do
     case ExBencode.encode(term) do
       {:ok, str} -> str
-      err -> err
     end
   end
 end

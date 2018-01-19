@@ -58,7 +58,7 @@ defmodule Extracker.HTTP.Handler.Ring do
 
       cbresp = Response.do_cowboy_response(resp, cbreq)
 
-      {:ok, cbresp, resp.state}
+      {:ok, cbresp, state}
     end
   end
 

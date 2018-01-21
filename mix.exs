@@ -5,7 +5,7 @@ defmodule Extracker.Mixfile do
     [
       app: :extracker,
       version: "0.0.1",
-      elixir: "~> 1.1-dev",
+      elixir: "~> 1.5",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps(),
@@ -33,7 +33,8 @@ defmodule Extracker.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 2.2"},
-      {:httpoison, "~> 1.0"},
+      {:httpotion, "~> 3.0.2"},
+      {:ex_bencode, "~> 2.0"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false}
     ]

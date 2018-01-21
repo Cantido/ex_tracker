@@ -1,4 +1,4 @@
-alias Extracker.HTTP.{IPAddressConstraint, Format}
+alias Extracker.HTTP.IPAddressConstraint
 alias Extracker.HTTP.Logging, as: HTTPLogging
 alias Extracker.HTTP.Handler.Ring
 alias Extracker.HTTP.Handler.Ring.Response
@@ -36,9 +36,13 @@ defmodule Extracker.HTTP.Handler do
       :ok,
       %{
         status: 200,
-        body: Extracker.request(req.query_params)
+        body: Extracker.request(req.query_params) |> rename_keys(%{interval_s: :interval})
       }
     }
+  end
+
+  def rename_keys(map, keys) do
+    for {k, v} <- map, into: %{}, do: {Map.get(keys, k, k), v}
   end
 
   defp wrap_params(handler) do

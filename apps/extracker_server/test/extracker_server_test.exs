@@ -1,18 +1,18 @@
-alias Extracker.{TorrentRegistry, Torrent}
-import Extracker.TestHelper
+alias ExtrackerServer.{TorrentRegistry, Torrent}
+import ExtrackerServer.TestHelper
 
-defmodule ExtrackerTest do
+defmodule ExtrackerServerTest do
   use ExUnit.Case
-  doctest Extracker
+  doctest ExtrackerServer
 
   @interval_s 9_001
 
   setup do
-    Extracker.set_interval @interval_s
+    ExtrackerServer.set_interval @interval_s
   end
 
   test "valid request turns a map of data" do
-    response = Extracker.request request()
+    response = ExtrackerServer.request request()
 
     assert response.interval_s == @interval_s
     assert is_list response.peers
@@ -22,7 +22,7 @@ defmodule ExtrackerTest do
     state = tracker_with_peer(<<0>>, peer_one_map())
     request = request(peer_two_map())
 
-    {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
+    {:reply, reply, state1} = ExtrackerServer.handle_call({:announce, request}, {}, state)
 
     assert length(reply.peers) == 2
     assert TorrentRegistry.size(state1.registry) == 1
@@ -34,14 +34,14 @@ defmodule ExtrackerTest do
   test "peers are stripped of unused data" do
     request = request()
 
-    {:reply, reply, _} = Extracker.handle_call({:announce, request}, {}, Extracker.new())
+    {:reply, reply, _} = ExtrackerServer.handle_call({:announce, request}, {}, ExtrackerServer.new())
 
     assert [peer | _] = reply.peers
     assert Map.keys(peer) == [:ip, :peer_id, :port]
   end
 
   defp tracker_with_peer(info_hash, peer) do
-    %Extracker{
+    %ExtrackerServer{
       registry: registry_with_peer(info_hash, peer)
     }
   end
@@ -55,7 +55,7 @@ defmodule ExtrackerTest do
     state = tracker_with_peer(<<0>>, peer_one_map())
     request = %{request() | info_hash: <<12>>}
 
-    {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
+    {:reply, reply, state1} = ExtrackerServer.handle_call({:announce, request}, {}, state)
 
     assert length(reply.peers) == 1
     assert TorrentRegistry.size(state1.registry) == 2
@@ -68,18 +68,18 @@ defmodule ExtrackerTest do
   end
 
   test "peers expire" do
-    Extracker.set_interval(0) # all peers expire immediately
-    Extracker.set_cleanup_interval(100)
+    ExtrackerServer.set_interval(0) # all peers expire immediately
+    ExtrackerServer.set_cleanup_interval(100)
 
     first_peer = peer_one_map()
     first_request = %{request(first_peer) | info_hash: <<5>>}
-    Extracker.request first_request
+    ExtrackerServer.request first_request
 
     Process.sleep(300)
 
     second_peer = peer_two_map()
     second_request = %{request(second_peer) | info_hash: <<5>>}
-    second_response = Extracker.request second_request
+    second_response = ExtrackerServer.request second_request
 
     refute first_peer.peer_id in peer_ids(second_response)
   end
@@ -97,7 +97,7 @@ defmodule ExtrackerTest do
   end
 
   defp request_with_missing(key) do
-    malformed_request = Map.delete(Extracker.TestHelper.request(), key)
-    Extracker.request malformed_request
+    malformed_request = Map.delete(ExtrackerServer.TestHelper.request(), key)
+    ExtrackerServer.request malformed_request
   end
 end

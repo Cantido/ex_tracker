@@ -4,7 +4,6 @@ defmodule Extracker.Application do
   use Application
 
   def start(_type, _args) do
-    {:ok, _} = Extracker.HTTP.start(cfg(:host), cfg(:port), cfg(:path))
 
     extracker_opts = [
       interval_s: cfg(:interval_s),

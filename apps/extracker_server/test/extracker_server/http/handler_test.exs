@@ -1,11 +1,11 @@
-import Extracker.TestHelper
+import ExtrackerServer.TestHelper
 
-defmodule Extracker.HTTP.HandlerTest do
+defmodule ExtrackerServer.HTTP.HandlerTest do
   use ExUnit.Case
-  doctest Extracker.HTTP.Handler
+  doctest ExtrackerServer.HTTP.Handler
 
   setup do
-    Extracker.set_interval 9000
+    ExtrackerServer.set_interval 9000
   end
 
   defp req(params) do

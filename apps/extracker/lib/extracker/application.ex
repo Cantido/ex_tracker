@@ -4,7 +4,6 @@ defmodule Extracker.Application do
   use Application
 
   def start(_type, _args) do
-
     extracker_opts = [
       interval_s: cfg(:interval_s),
       cleanup_interval_ms: cfg(:cleanup_interval_ms)

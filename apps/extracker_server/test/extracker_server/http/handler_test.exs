@@ -5,7 +5,7 @@ defmodule ExtrackerServer.HTTP.HandlerTest do
   doctest ExtrackerServer.HTTP.Handler
 
   setup do
-    ExtrackerServer.set_interval 9000
+    Extracker.set_interval 9000
   end
 
   defp req(params) do

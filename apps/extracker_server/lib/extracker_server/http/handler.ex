@@ -36,7 +36,7 @@ defmodule ExtrackerServer.HTTP.Handler do
       :ok,
       %{
         status: 200,
-        body: ExtrackerServer.request(req.query_params) |> rename_keys(%{interval_s: :interval})
+        body: Extracker.request(req.query_params) |> rename_keys(%{interval_s: :interval})
       }
     }
   end

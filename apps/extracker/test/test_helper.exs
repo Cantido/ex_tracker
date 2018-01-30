@@ -7,7 +7,7 @@ defmodule Extracker.TestHelper do
 
   def peer_one_map do
     %{
-      peer_id: <<1>>,
+      peer_id: "--Peer ID number one",
       ip: {127, 0, 0, 1},
       port: 8001
     }
@@ -15,7 +15,7 @@ defmodule Extracker.TestHelper do
 
   def peer_two_map do
     %{
-      peer_id: <<2>>,
+      peer_id: "--Peer ID number two",
       ip: {10, 0, 0, 1},
       port: 8002
     }
@@ -26,8 +26,12 @@ defmodule Extracker.TestHelper do
   end
 
   def request(peer) do
+    request("Info hash number one", peer)
+  end
+
+  def request(hash, peer) do
     %{
-      info_hash: <<0>>,
+      info_hash: hash,
       peer_id: peer.peer_id,
       port: peer.port,
       ip: peer.ip,

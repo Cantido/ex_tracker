@@ -12,22 +12,22 @@ defmodule ExtrackerTest do
   end
 
   test "valid request turns a map of data" do
-    response = Extracker.request request()
+    response = %{interval_s: @interval_s, peers: peers} = Extracker.request request()
 
     assert response.interval_s == @interval_s
-    assert is_list response.peers
+    assert is_list peers
   end
 
   test "register and retrieve a peer" do
-    state = tracker_with_peer(<<0>>, peer_one_map())
-    request = request(peer_two_map())
+    state = tracker_with_peer("Existing Torrent ID-", peer_one_map())
+    request = request("Existing Torrent ID-", peer_two_map())
 
     {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
 
     assert length(reply.peers) == 2
     assert TorrentRegistry.size(state1.registry) == 1
 
-    torrent = TorrentRegistry.lookup(state1.registry, <<0>>)
+    torrent = TorrentRegistry.lookup(state1.registry, "Existing Torrent ID-")
     assert Torrent.size(torrent) == 2
   end
 
@@ -52,18 +52,18 @@ defmodule ExtrackerTest do
   end
 
   test "peers of other torrents are not returned" do
-    state = tracker_with_peer(<<0>>, peer_one_map())
-    request = %{request() | info_hash: <<12>>}
+    state = tracker_with_peer("Existing Torrent ID-", peer_one_map())
 
+    request = %{request() | info_hash: "New Torrent ID------"}
     {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
 
     assert length(reply.peers) == 1
     assert TorrentRegistry.size(state1.registry) == 2
 
-    torrent = TorrentRegistry.lookup(state1.registry, <<0>>)
+    torrent = TorrentRegistry.lookup(state1.registry, "Existing Torrent ID-")
     assert Torrent.size(torrent) == 1
 
-    torrent = TorrentRegistry.lookup(state1.registry, <<12>>)
+    torrent = TorrentRegistry.lookup(state1.registry, "New Torrent ID------")
     assert Torrent.size(torrent) == 1
   end
 
@@ -72,13 +72,13 @@ defmodule ExtrackerTest do
     Extracker.set_cleanup_interval(100)
 
     first_peer = peer_one_map()
-    first_request = %{request(first_peer) | info_hash: <<5>>}
+    first_request = request(first_peer)
     Extracker.request first_request
 
     Process.sleep(300)
 
     second_peer = peer_two_map()
-    second_request = %{request(second_peer) | info_hash: <<5>>}
+    second_request = request(second_peer)
     second_response = Extracker.request second_request
 
     refute first_peer.peer_id in peer_ids(second_response)

@@ -37,7 +37,20 @@ defmodule Extracker do
   """
   def request(req)
 
-  def request(%{info_hash: _, peer_id: _, port: _, uploaded: _, downloaded: _, left: _, ip: _} = req) do
+  def request(%{
+    info_hash: hash,
+    peer_id: id,
+    port: port,
+    uploaded: ul,
+    downloaded: dl,
+    left: left,
+    ip: {a, b, c, d}
+  } = req)
+  when is_binary(hash) and byte_size(hash) == 20
+   and is_binary(id) and byte_size(id) == 20
+   and port in 0..65535
+   and ul >= 0 and dl >= 0 and left >= 0
+   and a in 0..255 and b in 0..255 and c in 0..255 and d in 0..255 do
     GenServer.call(__MODULE__, {:announce, req})
   end
 

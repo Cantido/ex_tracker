@@ -2,6 +2,7 @@ alias Extracker.{TorrentRegistry, Torrent}
 
 defmodule Extracker do
   use GenServer
+  require Logger
 
   @moduledoc """
   A fast & scaleable BitTorrent tracker.
@@ -54,7 +55,8 @@ defmodule Extracker do
     GenServer.call(__MODULE__, {:announce, req})
   end
 
-  def request(_req) do
+  def request(req) do
+    Logger.info "Got bad request #{inspect(req)}"
     %{ failure_reason: "invalid request" }
   end
 

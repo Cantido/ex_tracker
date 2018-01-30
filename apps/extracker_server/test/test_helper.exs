@@ -1,6 +1,6 @@
-ExUnit.start(capture_log: true)
+ExUnit.start()
 
-defmodule ExtrackerServer.TestHelper do
+defmodule ExtrackerPlug.TestHelper do
   def peer do
     peer_one_map()
   end

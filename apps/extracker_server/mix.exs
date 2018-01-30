@@ -1,15 +1,15 @@
-defmodule ExtrackerServer.MixProject do
+defmodule ExtrackerPlug.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :extracker_server,
-      version: "0.0.1",
-      elixir: "~> 1.5",
+      app: :extracker_plug,
+      version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
+      elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -24,11 +24,10 @@ defmodule ExtrackerServer.MixProject do
 
   defp deps do
     [
-      {:cowboy, "~> 2.2"},
-      {:httpotion, "~> 3.0.2"},
-      {:ex_bencode, "~> 2.0"},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
-      {:dialyxir, "~> 0.5", only: :dev, runtime: false}
+      {:extracker, in_umbrella: true},
+      {:cowboy, "~> 1.1"},
+      {:plug, "~> 1.4"},
+      {:ex_bencode, "~> 2.0"}
     ]
   end
 end

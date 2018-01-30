@@ -25,65 +25,44 @@ defmodule ExtrackerServerTest do
   end
 
   test "returns hello world" do
-    # Create a test connection
-    conn = conn(:get, "/announce?" <> URI.encode_query(request_params()))
+    conn = req(request_params())
 
-    # Invoke the plug
-    conn = ExtrackerServer.call(conn, @opts)
-
-    # Assert the response and status
     assert conn.state == :sent
     assert conn.status == 200
     assert {:ok, body} = ExBencode.decode(conn.resp_body)
 
+    assert Map.has_key?(body, "interval")
     assert body["interval"] == 9_000
   end
 
-  # setup do
-  #   Extracker.set_interval 9000
-  # end
-  #
-  # test "returns content type of text/plain" do
-  #   resp = req(request_query())
-  #   assert resp.headers["content-type"] == "text/plain"
-  # end
-  #
-  # test "returns status code 200" do
-  #   resp = req(request_query())
-  #
-  #   assert resp.status_code == 200
-  # end
-  #
-  # test "returns an interval value" do
-  #   body = req(request_query()).body
-  #   {:ok, body_data} = ExBencode.decode(body)
-  #
-  #   assert body_data["interval"] == 9_000
-  # end
-  #
-  # test "returns a peer value" do
-  #   body = req(request_query()).body
-  #   {:ok, body_data} = ExBencode.decode(body)
-  #
-  #   expected_peer = %{"ip" => "127.0.0.1", "peer_id" => <<1>>, "port" => 8001}
-  #
-  #   assert expected_peer in body_data["peers"]
-  # end
-  #
-  # test "accepts a real query" do
-  #   resp = HTTPotion.get("localhost:6969?" <> real_request())
-  #
-  #   assert resp.status_code == 200
-  # end
-  #
-  # test "compacts peers, if requested" do
-  #   body = req(Map.put(request_query(), :compact, 1)).body
-  #   {:ok, body_data} = ExBencode.decode(body)
-  #
-  #   expected_peer = <<127, 0, 0, 1, 8001 :: 16>>
-  #
-  #   assert body_data["peers"] == expected_peer
-  # end
+  defp req(params) do
+    conn = conn(:get, "/announce?" <> URI.encode_query(params))
+
+    ExtrackerServer.call(conn, @opts)
+  end
+
+  test "returns content type of text/plain" do
+    conn = req(request_params())
+    assert Plug.Conn.get_resp_header(conn, "content-type") == ["text/plain; charset=utf-8"]
+  end
+
+  test "returns a peer value" do
+    body = req(request_params()).resp_body
+    {:ok, body_data} = ExBencode.decode(body)
+
+    expected_peer = %{"ip" => "127.0.0.1", "peer_id" => "-TR2920-ytgm4shu94ut", "port" => 51413}
+
+    assert expected_peer in body_data["peers"]
+  end
+
+  test "compacts peers, if requested" do
+    body = req(Map.put(request_params(), :compact, 1)).resp_body
+    {:ok, body_data} = ExBencode.decode(body)
+
+    expected_peer = <<127, 0, 0, 1, 51413 :: 16>>
+
+    assert body_data["peers"] == expected_peer
+  end
 
   test "returns an empty scrape if there have been no announcements" do
     query = URI.encode_query(%{"info_hash" => "Torrent with no DLs-"})

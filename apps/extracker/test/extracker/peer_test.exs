@@ -28,4 +28,22 @@ defmodule Extracker.PeerTest do
 
     assert Extracker.Peer.too_old?(peer, max_age, current_time)
   end
+
+  test "starts incomplete" do
+    assert Peer.download_state(Peer.new(<<0>>)) == :incomplete
+  end
+
+  test "query for incompleteness" do
+    assert Peer.incomplete?(Peer.new(<<0>>))
+  end
+
+  test "set completed download" do
+    peer = Peer.new(<<0>>) |> Peer.completed()
+    assert Peer.download_state(peer) == :complete
+  end
+
+  test "query for completed" do
+    peer = Peer.new(<<0>>) |> Peer.completed()
+    assert Peer.complete?(peer)
+  end
 end

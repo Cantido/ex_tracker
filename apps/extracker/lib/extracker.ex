@@ -45,6 +45,19 @@ defmodule Extracker do
     %{ failure_reason: "invalid request" }
   end
 
+  defguard is_info_hash(hash)
+    when is_binary(hash)
+     and byte_size(hash) == 20
+
+
+  def scrape(info_hash) when is_info_hash(info_hash) do
+    GenServer.call(__MODULE__, {:scrape, info_hash})
+  end
+
+  def scrape(_req) do
+    %{ failure_reason: "invalid request" }
+  end
+
   ## Callbacks
 
   defstruct registry: TorrentRegistry.new(),
@@ -66,8 +79,14 @@ defmodule Extracker do
   end
 
   def handle_call({:announce, %{info_hash: info_hash} = req}, _from, state) do
+    download_state = case req[:event] do
+      :completed -> :complete
+      _ -> :incomplete
+    end
+
     peer = struct(Extracker.Peer, req)
         |> Map.put(:last_announce, System.monotonic_time(:seconds))
+        |> Map.put(:download_state, download_state)
 
     registry1 = state.registry
              |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
@@ -84,6 +103,25 @@ defmodule Extracker do
       },
       %{state | registry: registry1}
     }
+  end
+
+  def handle_call({:scrape, info_hash}, _from, state) do
+    scrape = case TorrentRegistry.lookup(state.registry, info_hash) do
+      nil ->
+        %{
+          complete: 0,
+          downloaded: 0,
+          incomplete: 0
+        }
+      torrent ->
+        complete = Torrent.count_complete(torrent)
+        %{
+          complete: complete,
+          downloaded: complete,
+          incomplete: Torrent.count_incomplete(torrent)
+        }
+    end
+    {:reply, scrape, state}
   end
 
   def handle_call({:set_interval, i}, _from, state) do

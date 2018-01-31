@@ -53,4 +53,22 @@ defmodule Extracker.TorrentTest do
 
     assert Torrent.size(torrent) == 1
   end
+
+  test "torrents start with zero incomplete downloads" do
+    assert (Torrent.new |> Torrent.count_incomplete) == 0
+  end
+
+  test "added peers are considered incomplete" do
+    torrent = Torrent.new([Peer.new(<<0>>, 10)])
+    assert Torrent.count_incomplete(torrent) == 1
+  end
+
+  test "mark a peer as completed" do
+    torrent =
+      [Peer.new(<<0>>, 10)]
+      |> Torrent.new()
+      |> Torrent.peer_completed(<<0>>)
+
+    assert Torrent.count_complete(torrent) == 1
+  end
 end

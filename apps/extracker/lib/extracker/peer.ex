@@ -6,7 +6,8 @@ defmodule Extracker.Peer do
   defstruct peer_id: <<>>,
             ip: {0, 0, 0, 0},
             port: 0,
-            last_announce: :never
+            last_announce: :never,
+            download_state: :incomplete
 
   @doc """
   Create a peer with the given `peer_id`.
@@ -63,4 +64,16 @@ defmodule Extracker.Peer do
   def age(peer, current_time) do
     current_time - peer.last_announce
   end
+
+  def download_state(%Extracker.Peer{} = peer) do
+    peer.download_state
+  end
+
+  def incomplete?(%Extracker.Peer{download_state: :incomplete}), do: true
+  def incomplete?(%Extracker.Peer{}), do: false
+
+  def completed(%Extracker.Peer{} = peer), do: %{peer | download_state: :complete}
+
+  def complete?(%Extracker.Peer{download_state: :complete}), do: true
+  def complete?(%Extracker.Peer{}), do: false
 end

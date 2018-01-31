@@ -84,6 +84,24 @@ defmodule ExtrackerTest do
     refute first_peer.peer_id in peer_ids(second_response)
   end
 
+  test "scrape counts peers" do
+    scraped_torrent = %{request() | info_hash: "Scraped Info Hash---"}
+
+    incomplete_peer = scraped_torrent
+    |> Map.put(:peer_id, "Incomplete peer-----")
+    |> Map.put(:event, :started)
+
+    complete_peer = scraped_torrent
+    |> Map.put(:peer_id, "Complete peer-------")
+    |> Map.put(:event, :completed)
+
+    %{complete: 0, downloaded: 0, incomplete: 0} = Extracker.scrape "Scraped Info Hash---"
+    Extracker.request incomplete_peer
+    %{complete: 0, downloaded: 0, incomplete: 1} = Extracker.scrape "Scraped Info Hash---"
+    Extracker.request complete_peer
+    %{complete: 1, downloaded: 1, incomplete: 1} = Extracker.scrape "Scraped Info Hash---"
+  end
+
   test "info_hash is required", do: assert_key_required(:info_hash)
   test "peer ID is required", do: assert_key_required(:peer_id)
   test "port number is required", do: assert_key_required(:port)

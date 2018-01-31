@@ -34,7 +34,6 @@ defmodule Extracker.Torrent do
   Add a `peer` to a `torrent`'s list of tracked peers.
   """
   def add_peer(torrent, peer) do
-
     peers1 = Map.put(torrent.peers, peer.peer_id, peer)
 
     %{torrent | peers: peers1}
@@ -68,5 +67,25 @@ defmodule Extracker.Torrent do
 
   defp reject_peers_map(peers, fun) do
     Enum.reject(peers, fun) |> Map.new()
+  end
+
+  def count_incomplete(torrent) do
+    Enum.count(
+      torrent.peers,
+      fn({_, peer}) -> Peer.incomplete?(peer) end
+    )
+  end
+
+  def peer_completed(torrent, peer_id) do
+    updated_peer = torrent.peers[peer_id] |> Peer.completed()
+    new_peers = Map.put(torrent.peers, peer_id, updated_peer)
+    %{torrent | peers: new_peers}
+  end
+
+  def count_complete(torrent) do
+    Enum.count(
+      torrent.peers,
+      fn({_, peer}) -> Peer.complete?(peer) end
+    )
   end
 end

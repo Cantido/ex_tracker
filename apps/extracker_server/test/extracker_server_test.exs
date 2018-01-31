@@ -98,6 +98,25 @@ defmodule ExtrackerServerTest do
     assert body["files"] == %{"Torrent with no DLs-" => %{"complete" => 0, "downloaded" => 0, "incomplete" => 0}}
   end
 
+  test "scrape multiple info hashes at once" do
+    query = URI.encode_query([
+      {"info_hash", "Torrent with no DLs-"},
+      {"info_hash", "another torrent-----"}
+    ])
+    conn = conn(:get, "/scrape?" <> query)
+    conn = ExtrackerServer.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert {:ok, body} = ExBencode.decode(conn.resp_body)
+
+    assert Map.keys(body) == ["files"]
+    assert body["files"] == %{
+      "Torrent with no DLs-" => %{"complete" => 0, "downloaded" => 0, "incomplete" => 0},
+      "another torrent-----" => %{"complete" => 0, "downloaded" => 0, "incomplete" => 0}
+    }
+  end
+
   test "returns a scrape with a torrent" do
     announce_request = %{
       info_hash: "Scraped Info Hash---",

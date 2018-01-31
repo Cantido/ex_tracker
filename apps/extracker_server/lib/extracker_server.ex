@@ -22,15 +22,7 @@ defmodule ExtrackerServer do
     |> send_resp()
   end
 
-  get "/scrape" do
-    hash = conn.query_params[:info_hash]
-    result = case Extracker.scrape(hash) do
-      %{"failure_reason" => _} = failure -> failure
-      success -> %{files: %{hash => success}}
-    end
-    {:ok, body} = ExBencode.encode(result)
-    send_resp(conn, 200, body)
-  end
+  get "/scrape", to: ExtrackerServer.Scrape
 
   match _ do
     send_resp(conn, 404, "oops")

@@ -24,6 +24,10 @@ defmodule ExtrackerServerTest do
     }
   end
 
+  setup do
+    Extracker.set_interval 9_000
+  end
+
   test "returns hello world" do
     conn = req(request_params())
 

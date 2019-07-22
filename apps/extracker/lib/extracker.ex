@@ -100,7 +100,7 @@ defmodule Extracker do
     end
 
     peer = struct(Extracker.Peer, req)
-        |> Map.put(:last_announce, System.monotonic_time(:seconds))
+        |> Map.put(:last_announce, System.monotonic_time(:second))
         |> Map.put(:download_state, download_state)
 
     registry1 = state.registry
@@ -177,7 +177,7 @@ defmodule Extracker do
       TorrentRegistry.clean_torrents(
         state.registry,
         state.interval_s,
-        System.monotonic_time(:seconds))
+        System.monotonic_time(:second))
 
     %{state | registry: registry1}
   end

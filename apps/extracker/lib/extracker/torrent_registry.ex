@@ -50,7 +50,7 @@ defmodule Extracker.TorrentRegistry do
   end
 
   def size(registry) do
-    Map.size(registry.torrents)
+    map_size(registry.torrents)
   end
 
   @doc """

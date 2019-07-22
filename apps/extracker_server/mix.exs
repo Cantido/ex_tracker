@@ -25,8 +25,8 @@ defmodule ExtrackerPlug.MixProject do
   defp deps do
     [
       {:extracker, in_umbrella: true},
-      {:cowboy, "~> 1.1"},
-      {:plug, "~> 1.4"},
+      {:cowboy, "~> 2.6"},
+      {:plug_cowboy, "~> 2.0"},
       {:ex_bencode, "~> 2.0"}
     ]
   end

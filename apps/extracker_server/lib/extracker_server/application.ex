@@ -3,7 +3,7 @@ defmodule ExtrackerServer.Application do
 
   def start(_type, _args) do
     children = [
-      Plug.Adapters.Cowboy.child_spec(:http, ExtrackerServer, [])
+      {Plug.Cowboy, scheme: :http, plug: ExtrackerServer, options: [port: 3000]}
     ]
 
     opts = [strategy: :one_for_one, name: ExtrackerServer.Supervisor]

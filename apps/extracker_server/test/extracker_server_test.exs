@@ -28,7 +28,7 @@ defmodule ExtrackerServerTest do
     Extracker.set_interval 9_000
   end
 
-  test "returns hello world" do
+  test "returns interval a 200 with an interval value" do
     conn = req(request_params())
 
     assert conn.state == :sent

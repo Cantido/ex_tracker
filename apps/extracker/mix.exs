@@ -25,6 +25,8 @@ defmodule Extracker.MixProject do
   defp deps do
     [
       {:ex_bencode, "~> 2.0"},
+      {:benchee, "~> 1.0", only: :dev},
+      {:stream_data, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false}
     ]

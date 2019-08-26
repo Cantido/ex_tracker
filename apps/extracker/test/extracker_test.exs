@@ -11,8 +11,8 @@ defmodule ExtrackerTest do
     Extracker.set_interval @interval_s
   end
 
-  test "valid request turns a map of data" do
-    response = %{interval_s: @interval_s, peers: peers} = Extracker.request request()
+  test "valid announce turns a map of data" do
+    response = %{interval_s: @interval_s, peers: peers} = Extracker.announce request()
 
     assert response.interval_s == @interval_s
     assert is_list peers
@@ -73,13 +73,13 @@ defmodule ExtrackerTest do
 
     first_peer = peer_one_map()
     first_request = request(first_peer)
-    Extracker.request first_request
+    Extracker.announce first_request
 
     Process.sleep(300)
 
     second_peer = peer_two_map()
     second_request = request(second_peer)
-    second_response = Extracker.request second_request
+    second_response = Extracker.announce second_request
 
     refute first_peer.peer_id in peer_ids(second_response)
   end
@@ -96,9 +96,9 @@ defmodule ExtrackerTest do
     |> Map.put(:event, :completed)
 
     %{complete: 0, downloaded: 0, incomplete: 0} = Extracker.scrape "Scraped Info Hash---"
-    Extracker.request incomplete_peer
+    Extracker.announce incomplete_peer
     %{complete: 0, downloaded: 0, incomplete: 1} = Extracker.scrape "Scraped Info Hash---"
-    Extracker.request complete_peer
+    Extracker.announce complete_peer
     %{complete: 1, downloaded: 1, incomplete: 1} = Extracker.scrape "Scraped Info Hash---"
   end
 
@@ -116,6 +116,6 @@ defmodule ExtrackerTest do
 
   defp request_with_missing(key) do
     malformed_request = Map.delete(Extracker.TestHelper.request(), key)
-    Extracker.request malformed_request
+    Extracker.announce malformed_request
   end
 end

@@ -36,9 +36,9 @@ defmodule Extracker do
   @doc """
   Announce a peer to the tracker.
   """
-  def request(req)
+  def announce(req)
 
-  def request(%{
+  def announce(%{
     info_hash: hash,
     peer_id: id,
     port: port,
@@ -55,7 +55,7 @@ defmodule Extracker do
     GenServer.call(__MODULE__, {:announce, req})
   end
 
-  def request(req) do
+  def announce(req) do
     Logger.info "Got bad request #{inspect(req)}"
     %{ failure_reason: "invalid request" }
   end

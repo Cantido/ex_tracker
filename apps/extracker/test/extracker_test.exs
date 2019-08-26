@@ -1,4 +1,4 @@
-alias Extracker.{TorrentRegistry, Torrent}
+alias Extracker.{Swarm, Torrent}
 import Extracker.TestHelper
 
 defmodule ExtrackerTest do
@@ -25,9 +25,9 @@ defmodule ExtrackerTest do
     {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
 
     assert length(reply.peers) == 2
-    assert TorrentRegistry.size(state1.registry) == 1
+    assert Swarm.size(state1.registry) == 1
 
-    torrent = TorrentRegistry.lookup(state1.registry, "Existing Torrent ID-")
+    torrent = Swarm.lookup(state1.registry, "Existing Torrent ID-")
     assert Torrent.size(torrent) == 2
   end
 
@@ -47,8 +47,8 @@ defmodule ExtrackerTest do
   end
 
   defp registry_with_peer(info_hash, peer) do
-    TorrentRegistry.new()
-      |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
+    Swarm.new()
+      |> Swarm.add_peer_to_torrent(info_hash, peer)
   end
 
   test "peers of other torrents are not returned" do
@@ -58,12 +58,12 @@ defmodule ExtrackerTest do
     {:reply, reply, state1} = Extracker.handle_call({:announce, request}, {}, state)
 
     assert length(reply.peers) == 1
-    assert TorrentRegistry.size(state1.registry) == 2
+    assert Swarm.size(state1.registry) == 2
 
-    torrent = TorrentRegistry.lookup(state1.registry, "Existing Torrent ID-")
+    torrent = Swarm.lookup(state1.registry, "Existing Torrent ID-")
     assert Torrent.size(torrent) == 1
 
-    torrent = TorrentRegistry.lookup(state1.registry, "New Torrent ID------")
+    torrent = Swarm.lookup(state1.registry, "New Torrent ID------")
     assert Torrent.size(torrent) == 1
   end
 

@@ -45,8 +45,4 @@ defmodule ExtrackerWeb.AnnounceController do
   defp compact_peers?(conn) do
     conn.query_params["compact"] == "1"
   end
-
-  defp rename_keys(map, keys) when is_map(map) and is_map(keys) do
-    for {k, v} <- map, into: %{}, do: {Map.get(keys, k, k), v}
-  end
 end

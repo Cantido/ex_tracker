@@ -1,8 +1,6 @@
 defmodule ExtrackerWeb.AnnounceController do
   use ExtrackerWeb, :controller
 
-
-
   def index(conn, %{
     "info_hash" => info_hash,
     "peer_id" => peer_id,
@@ -28,18 +26,13 @@ defmodule ExtrackerWeb.AnnounceController do
     })
     |> rename_keys(%{interval_s: :interval})
 
-    if Map.has_key?(body, :failure_reason) do
-      {:ok, encoded} = body |> ExBencode.encode()
-
-      text(conn, encoded)
-    else
+    if !Map.has_key?(body, :failure_reason) do
       format_type = if compact_peers?(conn), do: :compact, else: :standard
-      formatted = Extracker.Format.format(body, format_type)
-
-      {:ok, encoded} = formatted |> ExBencode.encode()
-
-      text(conn, encoded)
+      body = Extracker.Format.format(body, format_type)
     end
+
+    {:ok, encoded} = body |> ExBencode.encode()
+    text(conn, encoded)
   end
 
   defp integer_parse!(s) do

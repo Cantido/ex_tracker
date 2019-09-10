@@ -57,7 +57,7 @@ defmodule Extracker do
 
   def announce(req) do
     Logger.info "Got bad request #{inspect(req)}"
-    %{ failure_reason: "invalid request" }
+    {:error, "invalid request" }
   end
 
   defguard is_info_hash(hash)
@@ -70,7 +70,7 @@ defmodule Extracker do
   end
 
   def scrape(_req) do
-    %{ failure_reason: "invalid request" }
+    {:error, "invalid request"}
   end
 
   ## Callbacks
@@ -112,9 +112,12 @@ defmodule Extracker do
 
     {
       :reply,
-      %{
-        interval: state.interval_s,
-        peers: Enum.to_list(peers)
+      {
+        :ok,
+        %{
+          interval: state.interval_s,
+          peers: Enum.to_list(peers)
+        }
       },
       %{state | registry: registry1}
     }

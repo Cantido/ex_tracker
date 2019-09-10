@@ -14,7 +14,7 @@ defmodule ExtrackerWeb.AnnounceController do
 
     {:ok, iptuple} = :inet.parse_address(String.to_charlist(ip))
 
-    body = Extracker.announce(%{
+    announce_result = Extracker.announce(%{
       info_hash: info_hash,
       peer_id: peer_id,
       ip: iptuple,
@@ -25,13 +25,16 @@ defmodule ExtrackerWeb.AnnounceController do
       event: event
     })
 
-    if !Map.has_key?(body, :failure_reason) do
-      format_type = if compact_peers?(conn), do: :compact, else: :standard
-      body = Extracker.Format.format(body, format_type)
+    response_body = case announce_result do
+      {:ok, response} ->
+        format_type = if compact_peers?(conn), do: :compact, else: :standard
+        Extracker.Format.format(response, format_type)
+      {:error, reason} ->
+        %{ "failure reason" => reason}
     end
 
-    {:ok, encoded} = body |> ExBencode.encode()
-    text(conn, encoded)
+    {:ok, encoded_body} =  ExBencode.encode(response_body)
+    text(conn, encoded_body)
   end
 
   defp integer_parse!(s) do

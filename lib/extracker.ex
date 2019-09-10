@@ -113,7 +113,7 @@ defmodule Extracker do
     {
       :reply,
       %{
-        interval_s: state.interval_s,
+        interval: state.interval_s,
         peers: Enum.to_list(peers)
       },
       %{state | registry: registry1}

@@ -24,7 +24,6 @@ defmodule ExtrackerWeb.AnnounceController do
       left: integer_parse!(left),
       event: event
     })
-    |> rename_keys(%{interval_s: :interval})
 
     if !Map.has_key?(body, :failure_reason) do
       format_type = if compact_peers?(conn), do: :compact, else: :standard

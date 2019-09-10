@@ -8,7 +8,7 @@ defmodule ExtrackerServer.Announce do
   def query(conn, _opts) do
     body = conn.query_params
     |> Map.put_new(:ip, conn.remote_ip)
-    |> Extracker.request()
+    |> Extracker.announce()
     |> rename_keys(%{interval_s: :interval})
 
     format_type = if compact_peers?(conn), do: :compact, else: :standard

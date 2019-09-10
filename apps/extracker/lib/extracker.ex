@@ -1,4 +1,4 @@
-alias Extracker.{TorrentRegistry, Torrent}
+alias Extracker.{Swarm, Torrent}
 
 defmodule Extracker do
   use GenServer
@@ -36,9 +36,9 @@ defmodule Extracker do
   @doc """
   Announce a peer to the tracker.
   """
-  def request(req)
+  def announce(req)
 
-  def request(%{
+  def announce(%{
     info_hash: hash,
     peer_id: id,
     port: port,
@@ -55,7 +55,7 @@ defmodule Extracker do
     GenServer.call(__MODULE__, {:announce, req})
   end
 
-  def request(req) do
+  def announce(req) do
     Logger.info "Got bad request #{inspect(req)}"
     %{ failure_reason: "invalid request" }
   end
@@ -75,7 +75,7 @@ defmodule Extracker do
 
   ## Callbacks
 
-  defstruct registry: TorrentRegistry.new(),
+  defstruct registry: Swarm.new(),
             interval_s: 9_000,
             cleanup_interval_ms: 1_000,
             cleanup_timer: nil
@@ -104,9 +104,9 @@ defmodule Extracker do
         |> Map.put(:download_state, download_state)
 
     registry1 = state.registry
-             |> TorrentRegistry.add_peer_to_torrent(info_hash, peer)
+             |> Swarm.add_peer_to_torrent(info_hash, peer)
 
-    peers = TorrentRegistry.lookup(registry1, info_hash)
+    peers = Swarm.lookup(registry1, info_hash)
           |> Torrent.peers()
           |> strip_peers()
 
@@ -121,7 +121,7 @@ defmodule Extracker do
   end
 
   def handle_call({:scrape, info_hash}, _from, state) do
-    scrape = case TorrentRegistry.lookup(state.registry, info_hash) do
+    scrape = case Swarm.lookup(state.registry, info_hash) do
       nil ->
         %{
           complete: 0,
@@ -174,7 +174,7 @@ defmodule Extracker do
 
   defp clean(state) do
     registry1 =
-      TorrentRegistry.clean_torrents(
+      Swarm.clean_torrents(
         state.registry,
         state.interval_s,
         System.monotonic_time(:second))

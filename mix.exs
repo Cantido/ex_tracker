@@ -1,36 +1,45 @@
-defmodule ExTracker.MixProject do
+defmodule Extracker.MixProject do
   use Mix.Project
 
   def project do
     [
-      apps_path: "apps",
+      app: :extracker,
+      version: "0.1.0",
+      elixir: "~> 1.5",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
-      package: package(),
-      dialyzer: [ flags: ["-Wunmatched_returns", :error_handling, :race_conditions, :underspecs]],
-
-      # Docs
-      name: "Extracker",
-      source_url: "https://github.com/Cantido/ex_tracker",
-      docs: [
-        extras: [
-          "README.md": [title: "README"]
-        ]
-      ]
+      deps: deps()
     ]
   end
 
-  defp deps do
-    []
+  # Configuration for the OTP application.
+  #
+  # Type `mix help compile.app` for more information.
+  def application do
+    [
+      mod: {Extracker.Application, []},
+      extra_applications: [:logger, :runtime_tools]
+    ]
   end
 
-  defp package do
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
+  # Specifies your project dependencies.
+  #
+  # Type `mix help deps` for examples and options.
+  defp deps do
     [
-      name: :ex_tracker,
-      files: ["lib", "mix.exs", "README.md", "LICENSE"],
-      maintainers: ["Rosa Richter"],
-      licenses: ["GPL-3"],
-      links: %{"Github" => "https://github.com/Cantido/ex_tracker"}
+      {:phoenix, "~> 1.4.10"},
+      {:phoenix_pubsub, "~> 1.1"},
+      {:phoenix_html, "~> 2.11"},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:gettext, "~> 0.11"},
+      {:jason, "~> 1.0"},
+      {:ex_bencode, "~> 2.0"},
+      {:plug_cowboy, "~> 2.0"}
     ]
   end
 end

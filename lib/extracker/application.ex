@@ -21,7 +21,7 @@ defmodule Extracker.Application do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    TestingWeb.Endpoint.config_change(changed, removed)
+    ExtrackerWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 

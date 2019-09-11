@@ -7,9 +7,7 @@ defmodule ExtrackerWeb.ScrapeController do
     |> Stream.reject(fn {k, _} -> k == "failure_reason" end)
     |> Map.new
 
-    {:ok, body} = ExBencode.encode(%{files: files})
-
-    text(conn, body)
+    bencode(conn, %{files: files})
   end
 
   defp hashes(conn) do

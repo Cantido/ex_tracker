@@ -24,6 +24,13 @@ defmodule ExtrackerWeb do
       import Plug.Conn
       import ExtrackerWeb.Gettext
       alias ExtrackerWeb.Router.Helpers, as: Routes
+
+      def bencode(conn, d) do
+        case ExBencode.encode(d) do
+          {:error, _} -> {:error, "internal server error"}
+          {:ok, body} -> Phoenix.Controller.text(conn, body)
+        end
+      end
     end
   end
 

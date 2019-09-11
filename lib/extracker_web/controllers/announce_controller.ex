@@ -27,18 +27,11 @@ defmodule ExtrackerWeb.AnnounceController do
 
     with {:ok, response} <- announce_result,
          format_type = format_type(conn),
-         response_body = Extracker.Format.format(response, format_type),
-         {:ok, encoded_body} <- bencode(response_body) do
-      text(conn, encoded_body)
+         response_body = Extracker.Format.format(response, format_type) do
+      bencode(conn, response_body)
     end
   end
 
-  defp bencode(d) do
-    case ExBencode.encode(d) do
-      {:error, _} -> {:error, "internal server error"}
-      success -> success
-    end
-  end
 
   defp format_type(conn) do
     if compact_peers?(conn), do: :compact, else: :standard

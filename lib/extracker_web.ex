@@ -25,6 +25,8 @@ defmodule ExtrackerWeb do
       import ExtrackerWeb.Gettext
       alias ExtrackerWeb.Router.Helpers, as: Routes
 
+      action_fallback ExtrackerWeb.FallbackController
+
       def bencode(conn, d) do
         case ExBencode.encode(d) do
           {:error, _} -> {:error, "internal server error"}

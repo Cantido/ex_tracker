@@ -1,12 +1,11 @@
-alias Extracker.{Swarm, Torrent}
-
 defmodule Extracker do
-  use GenServer
-  require Logger
-
   @moduledoc """
   A fast & scaleable BitTorrent tracker.
   """
+
+  use GenServer
+  alias Extracker.{Swarm, Torrent}
+  require Logger
 
   ## API
 
@@ -16,21 +15,6 @@ defmodule Extracker do
   """
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
-  end
-
-  @doc """
-  Set the number of seconds `i` that a peer will expire after.
-  """
-  def set_interval(i) when i >= 0 do
-    GenServer.call(__MODULE__, {:set_interval, i})
-  end
-
-  @doc """
-  Set the number of milliseconds `i` that the server will wait before
-  removing expired peers.
-  """
-  def set_cleanup_interval(i) when i > 0 do
-    GenServer.call(__MODULE__, {:set_cleanup_interval, i})
   end
 
   @doc """
@@ -76,20 +60,17 @@ defmodule Extracker do
   ## Callbacks
 
   defstruct registry: Swarm.new(),
-            interval_s: 9_000,
-            cleanup_interval_ms: 1_000,
-            cleanup_timer: nil
+            interval_s: 9_000
 
   def new do
-    %Extracker{}
+
   end
 
-  def init([interval_s: interval_s, cleanup_interval_ms: cleanup_interval_ms]) do
-    state = %{
-      new() |
-        interval_s: interval_s,
-        cleanup_interval_ms: cleanup_interval_ms
-      } |> schedule_cleanup()
+  def init(args) do
+    interval_s = Keyword.fetch!(args, :interval_s)
+    state = %Extracker{
+        interval_s: interval_s
+      }
     {:ok, state}
   end
 
@@ -100,7 +81,7 @@ defmodule Extracker do
     end
 
     peer = struct(Extracker.Peer, req)
-        |> Map.put(:last_announce, System.monotonic_time(:second))
+        |> Map.put(:last_announce, DateTime.utc_now())
         |> Map.put(:download_state, download_state)
 
     registry1 = state.registry

@@ -1,9 +1,9 @@
-alias Extracker.Torrent
-
 defmodule Extracker.Swarm do
   @moduledoc """
   Store torrents and look them up by their info hash.
   """
+  alias Extracker.Torrent
+
   defstruct torrents: Map.new()
 
   @doc """
@@ -29,14 +29,14 @@ defmodule Extracker.Swarm do
       iex> swarm = Extracker.Swarm.new()
       iex> peer = Extracker.Peer.new(<<0>>)
       iex> info_hash = <<20>>
-      iex> size(swarm.torrents)
+      iex> Enum.count(swarm.torrents)
       0
       iex> swarm1 = Extracker.Swarm.add_peer_to_torrent(swarm, info_hash, peer)
-      iex> size(swarm1.torrents)
+      iex> Enum.count(swarm1.torrents)
       1
       iex> another_peer = Extracker.Peer.new(<<1>>)
-      iex> swarm2 = ExTracker.Swarm.add_peer_to_torrent(swarm, info_hash, another_peer)
-      iex> size(swarm2.torrents)
+      iex> swarm2 = Extracker.Swarm.add_peer_to_torrent(swarm, info_hash, another_peer)
+      iex> Enum.count(swarm2.torrents)
       1
   """
   def add_peer_to_torrent(swarm, info_hash, peer) do

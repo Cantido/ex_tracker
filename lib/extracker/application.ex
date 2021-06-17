@@ -4,13 +4,9 @@ defmodule Extracker.Application do
   use Application
 
   def start(_type, _args) do
-    extracker_opts = [
-      interval_s: cfg(:interval_s),
-      cleanup_interval_ms: cfg(:cleanup_interval_ms)
-    ]
-
     children = [
-      {Extracker, extracker_opts},
+      {DynamicSupervisor, [strategy: :one_for_one, name: Extracker.TorrentSupervisor]},
+      {Registry, [keys: :unique, name: Extracker.TorrentRegistry]},
       ExtrackerWeb.Endpoint
     ]
 
@@ -23,9 +19,5 @@ defmodule Extracker.Application do
   def config_change(changed, _new, removed) do
     ExtrackerWeb.Endpoint.config_change(changed, removed)
     :ok
-  end
-
-  defp cfg(key) do
-    Application.fetch_env!(:extracker, key)
   end
 end

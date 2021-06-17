@@ -1,11 +1,14 @@
-alias Extracker.Peer
-
 defmodule Extracker.Torrent do
   @moduledoc """
   Functions for manipulating tracked torrents.
   """
 
-  defstruct peers: Map.new
+  alias Extracker.Peer
+
+  defstruct [
+    downloaded_count: 0,
+    peers: Map.new()
+  ]
 
   @doc """
   Create a new torrent with no peers.
@@ -30,43 +33,35 @@ defmodule Extracker.Torrent do
     map_size(torrent.peers)
   end
 
+  def peers(%__MODULE__{peers: peers}) do
+    Map.values(peers)
+  end
+
   @doc """
   Add a `peer` to a `torrent`'s list of tracked peers.
   """
-  def add_peer(torrent, peer) do
-    peers1 = Map.put(torrent.peers, peer.peer_id, peer)
+  def add_peer(torrent, peer_id, ip, port) do
+    peers = Map.put_new(torrent.peers, peer_id, Peer.new(peer_id, ip, port))
 
-    %{torrent | peers: peers1}
+    %{torrent | peers: peers}
   end
 
-  def fetch_peer(torrent, peer_id) do
-    Map.fetch(torrent.peers, peer_id)
+  def peer_announced(torrent, peer_id, timestamp) do
+    peers = Map.update!(torrent.peers, peer_id, &Peer.announced(&1, timestamp))
+
+    %{torrent | peers: peers}
   end
 
-  def peers(torrent) do
-    Map.values(torrent.peers)
+  def drop_old_peers(torrent, current_time, max_age, unit \\ :second) do
+    peers =
+      Enum.reject(torrent.peers, fn({_id, x}) -> Peer.age(x, current_time, unit) > max_age end)
+      |> Map.new()
+
+    %{torrent | peers: peers}
   end
 
-  @doc """
-  Drop all tracked peers from `torrent` that are older than `max_age`.
-
-  It is recommended to use `System.monotonic_time(:seconds)` to fetch
-  the current time. That value is much more stable and useful for
-  age comparisons. Be careful that the time unit of `max_age` is the same
-  as the unit of `current_time`.
-  """
-  def drop_old_peers(torrent, max_age, current_time) do
-    too_old_filter = fn({_id, x}) -> Peer.too_old?(x, max_age, current_time) end
-
-    reject_peers(torrent, too_old_filter)
-  end
-
-  defp reject_peers(torrent, fun) do
-    %{torrent | peers: reject_peers_map(torrent.peers, fun) }
-  end
-
-  defp reject_peers_map(peers, fun) do
-    Enum.reject(peers, fun) |> Map.new()
+  def count_downloaded(torrent) do
+    torrent.downloaded_count
   end
 
   def count_incomplete(torrent) do
@@ -76,16 +71,20 @@ defmodule Extracker.Torrent do
     )
   end
 
-  def peer_completed(torrent, peer_id) do
-    updated_peer = torrent.peers[peer_id] |> Peer.completed()
-    new_peers = Map.put(torrent.peers, peer_id, updated_peer)
-    %{torrent | peers: new_peers}
-  end
-
   def count_complete(torrent) do
     Enum.count(
       torrent.peers,
       fn({_, peer}) -> Peer.complete?(peer) end
     )
+  end
+
+  def peer_completed(torrent, peer_id) do
+    updated_peer = torrent.peers[peer_id] |> Peer.completed()
+    new_peers = Map.put(torrent.peers, peer_id, updated_peer)
+    %{torrent | peers: new_peers, downloaded_count: torrent.downloaded_count + 1}
+  end
+
+  def peer_stopped(torrent, peer_id) do
+    %{torrent | peers: Map.drop(torrent.peers, [peer_id])}
   end
 end

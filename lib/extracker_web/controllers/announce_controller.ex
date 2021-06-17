@@ -4,26 +4,37 @@ defmodule ExtrackerWeb.AnnounceController do
   def index(conn, %{
     "info_hash" => info_hash,
     "peer_id" => peer_id,
-    "ip" => ip,
     "port" => port,
+    "uploaded" => uploaded,
     "downloaded" => downloaded,
     "left" => left
   } = params) do
-    uploaded = Map.get(params, "uploaded", "0")
-    event = Map.get(params, "event", "")
+    event =
+      case Map.get(params, "event", "") do
+        "started" -> :started
+        "stopped" -> :stopped
+        "completed" -> :completed
+        _ -> :interval
+      end
 
-    {:ok, iptuple} = :inet.parse_address(String.to_charlist(ip))
+    ip =
+      if Map.has_key?(params, "ip") do
+        {:ok, iptuple} = :inet.parse_address(String.to_charlist(params["ip"]))
+        iptuple
+      else
+        conn.remote_ip
+      end
 
-    announce_result = Extracker.announce(%{
-      info_hash: info_hash,
-      peer_id: peer_id,
-      ip: iptuple,
-      port: integer_parse!(port),
-      uploaded: integer_parse!(uploaded),
-      downloaded: integer_parse!(downloaded),
-      left: integer_parse!(left),
+    address = {ip, String.to_integer(port)}
+    progress = {String.to_integer(uploaded), String.to_integer(downloaded), String.to_integer(left)}
+
+    announce_result = Extracker.announce(
+      info_hash,
+      peer_id,
+      address,
+      progress,
       event: event
-    })
+    )
 
     with {:ok, response} <- announce_result,
          format_type = format_type(conn),
@@ -35,11 +46,6 @@ defmodule ExtrackerWeb.AnnounceController do
 
   defp format_type(conn) do
     if compact_peers?(conn), do: :compact, else: :standard
-  end
-
-  defp integer_parse!(s) do
-    {i, ""} = Integer.parse(s)
-    i
   end
 
   defp compact_peers?(conn) do

@@ -7,12 +7,14 @@
 # General application configuration
 use Mix.Config
 
+config :extracker,
+  interval: 9_000, # in seconds; 2 hours, 30 minutes
+
 # Configures the endpoint
 config :extracker, ExtrackerWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "LA/4LytFyUHT/CNrOOD9tkulJfJQijLHJ8w9LfuTT8nkDOdHodi4LTW+er9RtFpm",
-  render_errors: [view: ExtrackerWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Extracker.PubSub, adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: ExtrackerWeb.ErrorView, accepts: ~w(html)]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -25,7 +27,3 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
-
-config :extracker,
-  interval_s: 9_000, # in seconds; 2 hours, 30 minutes
-  cleanup_interval_ms: 1_000 # in milliseconds

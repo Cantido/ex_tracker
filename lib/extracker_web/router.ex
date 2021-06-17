@@ -16,7 +16,6 @@ defmodule ExtrackerWeb.Router do
   scope "/", ExtrackerWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
     get "/announce", AnnounceController, :index
     get "/scrape", ScrapeController, :index
   end

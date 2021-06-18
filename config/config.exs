@@ -13,8 +13,10 @@ config :extracker,
 # Configures the endpoint
 config :extracker, ExtrackerWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "LA/4LytFyUHT/CNrOOD9tkulJfJQijLHJ8w9LfuTT8nkDOdHodi4LTW+er9RtFpm",
-  render_errors: [view: ExtrackerWeb.ErrorView, accepts: ~w(html)]
+  secret_key_base: "+y2RZTJMC25GSHKFchRg9pg37/cr10yGUos1scVPqIBYu3DL07ONCP5giBPxTe0s",
+  render_errors: [view: ExtrackerWeb.ErrorView, accepts: ~w(html), layout: false],
+  pubsub_server: Extracker.PubSub,
+  live_view: [signing_salt: "MAhwdLex"]
 
 # Configures Elixir's Logger
 config :logger, :console,

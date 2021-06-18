@@ -28,7 +28,7 @@ defmodule ExtrackerWeb do
       action_fallback ExtrackerWeb.FallbackController
 
       def bencode(conn, d) do
-        case ExBencode.encode(d) do
+        case Bento.encode(d) do
           {:error, _} -> {:error, "internal server error"}
           {:ok, body} -> Phoenix.Controller.text(conn, body)
         end
@@ -43,17 +43,18 @@ defmodule ExtrackerWeb do
         namespace: ExtrackerWeb
 
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
+      import Phoenix.Controller,
+        only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
 
-      import ExtrackerWeb.ErrorHelpers
-      import ExtrackerWeb.Gettext
-      alias ExtrackerWeb.Router.Helpers, as: Routes
+      # Include shared imports and aliases for views
+      unquote(view_helpers())
     end
   end
 
   def router do
     quote do
       use Phoenix.Router
+
       import Plug.Conn
       import Phoenix.Controller
     end
@@ -63,6 +64,17 @@ defmodule ExtrackerWeb do
     quote do
       use Phoenix.Channel
       import ExtrackerWeb.Gettext
+    end
+  end
+
+  defp view_helpers do
+    quote do
+      # Import basic rendering functionality (render, render_layout, etc)
+      import Phoenix.View
+
+      import ExtrackerWeb.ErrorHelpers
+      import ExtrackerWeb.Gettext
+      alias ExtrackerWeb.Router.Helpers, as: Routes
     end
   end
 

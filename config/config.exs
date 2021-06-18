@@ -8,7 +8,7 @@
 use Mix.Config
 
 config :extracker,
-  interval: 9_000, # in seconds; 2 hours, 30 minutes
+  interval: 9_000 # in seconds; 2 hours, 30 minutes
 
 # Configures the endpoint
 config :extracker, ExtrackerWeb.Endpoint,

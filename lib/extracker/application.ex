@@ -7,6 +7,9 @@ defmodule Extracker.Application do
     children = [
       {DynamicSupervisor, [strategy: :one_for_one, name: Extracker.TorrentSupervisor]},
       {Registry, [keys: :unique, name: Extracker.TorrentRegistry]},
+
+      ExtrackerWeb.Telemetry,
+      {Phoenix.PubSub, name: ExtrackerWeb.PubSub},
       ExtrackerWeb.Endpoint
     ]
 

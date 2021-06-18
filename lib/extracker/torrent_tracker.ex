@@ -25,6 +25,10 @@ defmodule Extracker.TorrentTracker do
     GenServer.call(via(info_hash), :stop)
   end
 
+  def count_peers(info_hash) do
+    GenServer.call(via(info_hash), :count_peers)
+  end
+
   def via(info_hash) do
     {:via, Registry, {Extracker.TorrentRegistry, info_hash}}
   end
@@ -64,6 +68,14 @@ defmodule Extracker.TorrentTracker do
     }
 
     {:reply, resp, torrent}
+  end
+
+  def handle_call(:count_peers, _from, torrent) do
+    torrent = Torrent.drop_old_peers(torrent, DateTime.utc_now(), @interval_seconds, :second)
+
+    count = Torrent.count_active(torrent)
+
+    {:reply, count, torrent}
   end
 
   def handle_call(:stop, _from, torrent) do

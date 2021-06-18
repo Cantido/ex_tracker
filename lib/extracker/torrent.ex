@@ -29,10 +29,6 @@ defmodule Extracker.Torrent do
     %Extracker.Torrent{peers: Map.new(peers, fn(x) -> {x.peer_id, x} end)}
   end
 
-  def size(torrent) do
-    map_size(torrent.peers)
-  end
-
   def peers(%__MODULE__{peers: peers}) do
     Map.values(peers)
   end
@@ -58,6 +54,10 @@ defmodule Extracker.Torrent do
       |> Map.new()
 
     %{torrent | peers: peers}
+  end
+
+  def count_active(torrent) do
+    map_size(torrent.peers)
   end
 
   def count_downloaded(torrent) do

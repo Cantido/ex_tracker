@@ -74,4 +74,24 @@ defmodule Extracker do
   def drop(info_hash) do
     TorrentTracker.drop(info_hash)
   end
+
+  def count_torrents do
+    count = Registry.count(Extracker.TorrentRegistry)
+
+    :telemetry.execute([:extracker, :torrents], %{count: count})
+  end
+
+  def count_peers do
+    count =
+      Registry.select(Extracker.TorrentRegistry, [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}])
+      |> Enum.map(fn {info_hash, _pid, _val} ->
+        Task.async(fn ->
+          TorrentTracker.count_peers(info_hash)
+        end)
+      end)
+      |> Task.await_many()
+      |> Enum.sum()
+
+    :telemetry.execute([:extracker, :peers], %{count: count})
+  end
 end

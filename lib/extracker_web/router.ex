@@ -2,8 +2,8 @@ defmodule ExtrackerWeb.Router do
   use ExtrackerWeb, :router
 
   scope "/", ExtrackerWeb do
-    get "/announce", AnnounceController, :index
-    get "/scrape", ScrapeController, :index
+    get "/announce", TrackerController, :announce
+    get "/scrape", TrackerController, :scrape
   end
 
   # Enables LiveDashboard only for development

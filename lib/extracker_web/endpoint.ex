@@ -6,7 +6,7 @@ defmodule ExtrackerWeb.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
     store: :cookie,
-    key: "_example_key",
+    key: "_extracker_key",
     signing_salt: "YbeMwjvV"
   ]
 

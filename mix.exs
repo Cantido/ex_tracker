@@ -35,7 +35,7 @@ defmodule Extracker.MixProject do
       {:bento, "~> 0.9"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:phoenix, "~> 1.5.9"},
+      {:phoenix, "~> 1.6.0"},
       {:phoenix_live_dashboard, "~> 0.4"},
       {:plug_cowboy, "~> 2.0"},
       {:telemetry_metrics, "~> 0.4"},

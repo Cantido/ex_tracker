@@ -8,19 +8,10 @@ defmodule Extracker.Application do
       {DynamicSupervisor, [strategy: :one_for_one, name: Extracker.TorrentSupervisor]},
       {Registry, [keys: :unique, name: Extracker.TorrentRegistry]},
 
-      ExtrackerWeb.Telemetry,
-      {Phoenix.PubSub, name: ExtrackerWeb.PubSub},
-      ExtrackerWeb.Endpoint
+      {Bandit, plug: Extracker.Router, scheme: :http, options: [port: 6969]}
     ]
 
     opts = [strategy: :one_for_one, name: Extracker.Supervisor]
     Supervisor.start_link(children, opts)
-  end
-
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
-  def config_change(changed, _new, removed) do
-    ExtrackerWeb.Endpoint.config_change(changed, removed)
-    :ok
   end
 end

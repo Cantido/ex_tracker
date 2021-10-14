@@ -55,7 +55,7 @@ defmodule Extracker.TorrentTracker do
       peers: response_peers
     }
 
-    {:reply, response, torrent}
+    {:reply, {:ok, response}, torrent}
   end
 
   def handle_call(:scrape, _from, torrent) do
@@ -67,7 +67,7 @@ defmodule Extracker.TorrentTracker do
       incomplete: Torrent.count_incomplete(torrent)
     }
 
-    {:reply, resp, torrent}
+    {:reply, {:ok, resp}, torrent}
   end
 
   def handle_call(:count_peers, _from, torrent) do

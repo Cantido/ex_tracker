@@ -12,14 +12,14 @@ defmodule ExtrackerTest do
       peer_id_1 = :crypto.strong_rand_bytes(20)
       peer_id_2 = :crypto.strong_rand_bytes(20)
 
-      Extracker.announce(
+      {:ok, _resp} = Extracker.announce(
         info_hash,
         peer_id_1,
         {{127, 0, 0, 1}, 8000},
         {0, 0, 0}
       )
 
-      resp =
+      {:ok, resp} =
         Extracker.announce(
           info_hash,
           peer_id_2,
@@ -49,7 +49,7 @@ defmodule ExtrackerTest do
       peer_id_1 = :crypto.strong_rand_bytes(20)
       peer_id_2 = :crypto.strong_rand_bytes(20)
 
-      Extracker.announce(
+      {:ok, _resp} = Extracker.announce(
         info_hash,
         peer_id_1,
         {{127, 0, 0, 1}, 8000},
@@ -57,7 +57,7 @@ defmodule ExtrackerTest do
         event: :started
       )
 
-      Extracker.announce(
+      {:ok, _resp} = Extracker.announce(
         info_hash,
         peer_id_1,
         {{127, 0, 0, 1}, 8000},
@@ -65,7 +65,7 @@ defmodule ExtrackerTest do
         event: :completed
       )
 
-      resp =
+      {:ok, resp} =
         Extracker.announce(
           info_hash,
           peer_id_2,
@@ -96,7 +96,7 @@ defmodule ExtrackerTest do
         event: :completed
       )
 
-      resp = Extracker.scrape(info_hash)
+      {:ok, resp} = Extracker.scrape(info_hash)
 
       assert resp.complete == 1
       assert resp.downloaded == 1
@@ -117,7 +117,7 @@ defmodule ExtrackerTest do
         event: :started
       )
 
-      resp = Extracker.scrape(info_hash)
+      {:ok, resp} = Extracker.scrape(info_hash)
 
       assert resp.complete == 0
       assert resp.downloaded == 0
@@ -132,7 +132,7 @@ defmodule ExtrackerTest do
 
       peer_id = :crypto.strong_rand_bytes(20)
 
-      Extracker.announce(
+      {:ok, _resp} = Extracker.announce(
         info_hash,
         peer_id,
         {{127, 0, 0, 1}, 8000},
@@ -140,7 +140,7 @@ defmodule ExtrackerTest do
         event: :completed
       )
 
-      Extracker.announce(
+      {:ok, _resp} = Extracker.announce(
         info_hash,
         peer_id,
         {{127, 0, 0, 1}, 8000},
@@ -148,7 +148,7 @@ defmodule ExtrackerTest do
         event: :stopped
       )
 
-      resp = Extracker.scrape(info_hash)
+      {:ok, resp} = Extracker.scrape(info_hash)
 
       assert resp.complete == 0
       assert resp.downloaded == 1

@@ -25,7 +25,7 @@ defmodule Extracker do
    and ul >= 0 and dl >= 0 and left >= 0
    and a in 0..255 and b in 0..255 and c in 0..255 and d in 0..255 do
     if Enum.empty?(Registry.lookup(Extracker.TorrentRegistry, hash)) do
-      {:ok, _pid} = DynamicSupervisor.start_child(Extracker.TorrentSupervisor, {Extracker.TorrentTracker, hash})
+      {:ok, _pid} = Extracker.TorrentSupervisor.start_child(hash)
     end
 
     req = %Request{

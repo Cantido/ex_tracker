@@ -5,7 +5,7 @@ defmodule Extracker.Application do
 
   def start(_type, _args) do
     children = [
-      {DynamicSupervisor, [strategy: :one_for_one, name: Extracker.TorrentSupervisor]},
+      {Extracker.TorrentSupervisor, interval: 120},
       {Registry, [keys: :unique, name: Extracker.TorrentRegistry]},
 
       {Bandit, plug: Extracker.Router, scheme: :http, options: [port: 6969]}

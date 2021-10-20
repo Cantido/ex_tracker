@@ -3,14 +3,12 @@ defmodule Extracker.TorrentTracker do
   alias Extracker.Torrent
   alias Extracker.Announce.Response
 
-  @interval_seconds 2 * 60
-
-  def start_link(info_hash) do
-    GenServer.start_link(__MODULE__, [], name: via(info_hash))
+  def start_link(opts, info_hash) do
+    GenServer.start_link(__MODULE__, opts, name: via(info_hash))
   end
 
-  def init(_) do
-    {:ok, Torrent.new()}
+  def init(opts) do
+    {:ok, {Torrent.new(), opts}}
   end
 
   def announce(request) do
@@ -33,9 +31,10 @@ defmodule Extracker.TorrentTracker do
     {:via, Registry, {Extracker.TorrentRegistry, info_hash}}
   end
 
-  def handle_call({:announce, request}, _from, torrent) do
+  def handle_call({:announce, request}, _from, {torrent, opts}) do
+    interval = Keyword.fetch!(opts, :interval)
     torrent =
-      Torrent.drop_old_peers(torrent, DateTime.utc_now(), @interval_seconds, :second)
+      Torrent.drop_old_peers(torrent, DateTime.utc_now(), interval, :second)
       |> Torrent.add_peer(request.peer_id, request.ip, request.port)
       |> Torrent.peer_announced(request.peer_id, DateTime.utc_now())
 
@@ -49,17 +48,18 @@ defmodule Extracker.TorrentTracker do
     response_peers = Torrent.peers(torrent) |> Enum.reject(& &1.peer_id == request.peer_id)
 
     response = %Response{
-      interval: @interval_seconds,
+      interval: Keyword.fetch!(opts, :interval),
       complete: Torrent.count_complete(torrent),
       incomplete: Torrent.count_incomplete(torrent),
       peers: response_peers
     }
 
-    {:reply, {:ok, response}, torrent}
+    {:reply, {:ok, response}, {torrent, opts}}
   end
 
-  def handle_call(:scrape, _from, torrent) do
-    torrent = Torrent.drop_old_peers(torrent, DateTime.utc_now(), @interval_seconds, :second)
+  def handle_call(:scrape, _from, {torrent, opts}) do
+    interval = Keyword.fetch!(opts, :interval)
+    torrent = Torrent.drop_old_peers(torrent, DateTime.utc_now(), interval, :second)
 
     resp = %{
       complete: Torrent.count_complete(torrent),
@@ -67,18 +67,19 @@ defmodule Extracker.TorrentTracker do
       incomplete: Torrent.count_incomplete(torrent)
     }
 
-    {:reply, {:ok, resp}, torrent}
+    {:reply, {:ok, resp}, {torrent, opts}}
   end
 
-  def handle_call(:count_peers, _from, torrent) do
-    torrent = Torrent.drop_old_peers(torrent, DateTime.utc_now(), @interval_seconds, :second)
+  def handle_call(:count_peers, _from, {torrent, opts}) do
+    interval = Keyword.fetch!(opts, :interval)
+    torrent = Torrent.drop_old_peers(torrent, DateTime.utc_now(), interval, :second)
 
     count = Torrent.count_active(torrent)
 
-    {:reply, count, torrent}
+    {:reply, count, {torrent, opts}}
   end
 
-  def handle_call(:stop, _from, torrent) do
-    {:reply, :normal, :ok, torrent}
+  def handle_call(:stop, _from, state) do
+    {:reply, :normal, :ok, state}
   end
 end

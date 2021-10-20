@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 defmodule Extracker.TorrentTracker do
   use GenServer, restart: :temporary
   alias Extracker.Torrent

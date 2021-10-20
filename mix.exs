@@ -32,7 +32,8 @@ defmodule Extracker.MixProject do
   defp deps do
     [
       {:bento, "~> 0.9"},
-      {:bandit, "~> 0.4.3"}
+      {:bandit, "~> 0.4.3"},
+      {:vapor, "~> 0.10"}
     ]
   end
 end

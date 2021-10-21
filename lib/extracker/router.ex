@@ -57,7 +57,7 @@ defmodule Extracker.Router do
     with {:ok, response} <- announce_result,
           format_type = format_type(conn),
           response_body = Extracker.Format.format(response, format_type),
-          {:ok, response_binary} = Bento.encode(Map.from_struct(response_body)) do
+          {:ok, response_binary} <- Bento.encode(Map.from_struct(response_body)) do
       send_resp(conn, 200, response_binary)
     end
   end

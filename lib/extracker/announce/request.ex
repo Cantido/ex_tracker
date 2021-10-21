@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 defmodule Extracker.Announce.Request do
+  @moduledoc """
+  Request struct for the Tracker HTTP protocol.
+  """
+
   @enforce_keys [
     :info_hash,
     :peer_id,

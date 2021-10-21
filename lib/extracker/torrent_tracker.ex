@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 defmodule Extracker.TorrentTracker do
+  @moduledoc """
+  Tracks peers for a single torrent.
+  """
   use GenServer, restart: :temporary
   alias Extracker.Torrent
   alias Extracker.Announce.Response

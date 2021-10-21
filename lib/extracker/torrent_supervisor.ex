@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 defmodule Extracker.TorrentSupervisor do
+  @moduledoc """
+  Supervises `Extracker.TorrentTracker` processes.
+  """
   use DynamicSupervisor
 
   def start_link(opts) do

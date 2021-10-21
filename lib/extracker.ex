@@ -10,6 +10,10 @@ defmodule Extracker do
   alias Extracker.TorrentTracker
   alias Extracker.Announce.Request
 
+  defguardp is_ip_address(a, b, c, d) when a in 0..255 and b in 0..255 and c in 0..255 and d in 0..255
+  defguardp is_ip_port(port) when port in 0..65_535
+  defguardp is_info_hash(hash) when is_binary(hash) and byte_size(hash) == 20
+
 
   @doc """
   Announce a peer to the tracker.
@@ -23,11 +27,11 @@ defmodule Extracker do
     {ul, dl, left},
     opts
   )
-  when is_binary(hash) and byte_size(hash) == 20
+  when is_info_hash(hash)
    and is_binary(id) and byte_size(id) == 20
-   and port in 0..65535
+   and is_ip_port(port)
    and ul >= 0 and dl >= 0 and left >= 0
-   and a in 0..255 and b in 0..255 and c in 0..255 and d in 0..255 do
+   and is_ip_address(a, b, c, d) do
     if Enum.empty?(Registry.lookup(Extracker.TorrentRegistry, hash)) do
       {:ok, _pid} = Extracker.TorrentSupervisor.start_child(hash)
     end

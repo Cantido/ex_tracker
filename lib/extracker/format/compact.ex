@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 defmodule Extracker.Format.Compact do
+  @moduledoc """
+  Formats peers into compact peer format.
+  """
+
   @behaviour Extracker.Format
 
   def format(%{peers: peers} = body) when is_list(peers) do
@@ -15,7 +19,7 @@ defmodule Extracker.Format.Compact do
      and b in 0..255
      and c in 0..255
      and d in 0..255
-     and port in 0..65535 do
+     and port in 0..65_535 do
       <<a, b, c, d, port :: 16>>
   end
 end

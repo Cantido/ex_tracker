@@ -37,6 +37,7 @@ defmodule Extracker.MixProject do
     [
       {:bento, "~> 0.9"},
       {:bandit, "~> 0.4.3"},
+      {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
       {:vapor, "~> 0.10"}
     ]
   end

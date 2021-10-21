@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 defmodule Extracker.Format.Standard do
+  @moduledoc """
+  Formats peers into the standard map-based format.
+  """
+
   @behaviour Extracker.Format
 
   def format(%{peers: peers} = body) when is_list(peers) do

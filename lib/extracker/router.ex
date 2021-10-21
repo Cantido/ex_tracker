@@ -63,12 +63,20 @@ defmodule Extracker.Router do
   end
 
   get "/scrape" do
-    files = hashes(conn)
-    |> Stream.map(fn x -> {x, Extracker.scrape(x)} end)
-    |> Stream.reject(fn {k, _} -> k == "failure_reason" end)
-    |> Map.new
+    results =
+      hashes(conn)
+      |> Map.new(fn x -> {x, Extracker.scrape(x)} end)
 
-    case Bento.encode(files) do
+    failures = Enum.filter(results, fn {_hash, {status, _result}} -> status == :error end)
+
+    if Enum.any?(failures) do
+      encoded = Map.new(failures, fn {hash, failure} ->
+        {Base.encode16(hash, case: :lower), failure}
+      end)
+      raise RuntimeError, "One or more scrapes failed: #{inspect encoded}"
+    end
+
+    case Bento.encode(results) do
       {:ok, bin} -> send_resp(conn, 200, bin)
     end
   end

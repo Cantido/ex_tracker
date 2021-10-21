@@ -54,11 +54,6 @@ defmodule Extracker do
     {:error, "invalid request" }
   end
 
-  defguard is_info_hash(hash)
-    when is_binary(hash)
-     and byte_size(hash) == 20
-
-
   def scrape(info_hash) when is_info_hash(info_hash) do
     if Enum.empty?(Registry.lookup(Extracker.TorrentRegistry, info_hash)) do
       %{

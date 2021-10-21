@@ -56,12 +56,14 @@ defmodule Extracker do
 
   def scrape(info_hash) when is_info_hash(info_hash) do
     if Enum.empty?(Registry.lookup(Extracker.TorrentRegistry, info_hash)) do
-      %{
-        files: %{
-          info_hash => %{
-            complete: 0,
-            downloaded: 0,
-            incomplete: 0
+      {:ok,
+        %{
+          files: %{
+            info_hash => %{
+              complete: 0,
+              downloaded: 0,
+              incomplete: 0
+            }
           }
         }
       }
@@ -71,7 +73,7 @@ defmodule Extracker do
   end
 
   def scrape(_req) do
-    {:error, "invalid request"}
+    {:error, :invalid_info_hash}
   end
 
   def drop(info_hash) do

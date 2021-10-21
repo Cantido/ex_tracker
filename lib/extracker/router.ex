@@ -76,7 +76,10 @@ defmodule Extracker.Router do
       raise RuntimeError, "One or more scrapes failed: #{inspect encoded}"
     end
 
-    case Bento.encode(results) do
+    successes =
+      Map.new(results, fn {hash, {:ok, result}} -> {hash, result} end)
+
+    case Bento.encode(successes) do
       {:ok, bin} -> send_resp(conn, 200, bin)
     end
   end

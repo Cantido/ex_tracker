@@ -87,4 +87,8 @@ defmodule Extracker.Router do
     |> Stream.filter(fn({k, _}) -> k == "info_hash" end)
     |> Stream.map(fn({_, v}) -> Base.decode16!(v) end)
   end
+
+  match _ do
+    send_resp(conn, 404, "Not Found")
+  end
 end

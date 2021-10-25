@@ -8,6 +8,7 @@ all:
   BUILD +test
   BUILD +check
   BUILD +lint-copyright
+  BUILD +docker
 
 get-deps:
   FROM elixir:1.12-alpine

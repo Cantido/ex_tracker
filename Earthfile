@@ -55,6 +55,7 @@ test:
   FROM --build-arg MIX_ENV=test +build
 
   COPY test ./test
+  COPY docker-compose.yml ./docker-compose.yml
 
   WITH DOCKER --compose docker-compose.yml
     RUN MIX_ENV=test mix test

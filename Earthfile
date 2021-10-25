@@ -38,7 +38,7 @@ lint-copyright:
 
   COPY . .
 
-  RUN mix check --only reuse
+  RUN reuse lint
 
 check:
   FROM --build-arg MIX_ENV=test +build

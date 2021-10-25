@@ -13,6 +13,10 @@ defmodule Extracker.RouterTest do
   describe "announce" do
     test "returns an empty response on the first announce" do
       info_hash = :crypto.strong_rand_bytes(20)
+      on_exit(fn ->
+        Extracker.drop(info_hash)
+      end)
+
       params = %{
         info_hash: Base.encode16(info_hash, lower: true),
         peer_id: "12345678901234567890",

@@ -19,7 +19,7 @@ defmodule Extracker.Announce.Response do
 
   @type peer :: %{
           peer_id: binary(),
-          ip: :inet.ipv4_address(),
+          ip: :inet.ip4_address(),
           port: :inet.port_number()
         }
 

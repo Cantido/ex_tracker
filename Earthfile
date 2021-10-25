@@ -5,9 +5,8 @@
 ARG MIX_ENV=dev
 
 all:
-  BUILD +lint
+  BUILD +check
   BUILD +lint-copyright
-  BUILD +test
 
 get-deps:
   FROM elixir:1.12-alpine
@@ -34,11 +33,6 @@ build:
 
   SAVE ARTIFACT _build/$MIX_ENV AS LOCAL ./_build/$MIX_ENV
 
-lint:
-  FROM +build
-
-  RUN MIX_ENV=$MIX_ENV mix credo list
-
 lint-copyright:
   FROM fsfe/reuse
 
@@ -46,19 +40,14 @@ lint-copyright:
 
   RUN reuse lint
 
-sast:
-  FROM +build
-
-  RUN MIX_ENV=$MIX_ENV mix sobelow --skip
-
-test:
+check:
   FROM --build-arg MIX_ENV=test +build
 
   COPY test ./test
   COPY docker-compose.yml ./docker-compose.yml
 
   WITH DOCKER --compose docker-compose.yml
-    RUN MIX_ENV=test mix test
+    RUN mix check
   END
 
 release:

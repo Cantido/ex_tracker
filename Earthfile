@@ -48,7 +48,7 @@ test:
   COPY docker-compose.yml ./docker-compose.yml
 
   WITH DOCKER --compose docker-compose.yml
-    RUN mix check --only ex_unit
+    RUN mix test
   END
 
 check:

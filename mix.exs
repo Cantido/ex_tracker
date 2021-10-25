@@ -53,7 +53,6 @@ defmodule Extracker.MixProject do
       {:bandit, "~> 0.4.3"},
       {:castore, ">= 0.0.0"},
       {:credo, "~> 1.5.0-rc.2", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:doctor, "~> 0.18.0", only: :dev},
       {:ex_check, "~> 0.14.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},

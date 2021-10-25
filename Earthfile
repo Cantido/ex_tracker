@@ -5,6 +5,7 @@
 ARG MIX_ENV=dev
 
 all:
+  BUILD +test
   BUILD +check
   BUILD +lint-copyright
 
@@ -40,15 +41,20 @@ lint-copyright:
 
   RUN reuse lint
 
-check:
+test:
   FROM --build-arg MIX_ENV=test +build
 
   COPY test ./test
   COPY docker-compose.yml ./docker-compose.yml
 
   WITH DOCKER --compose docker-compose.yml
-    RUN mix check --except reuse
+    RUN mix check --only ex_unit
   END
+
+check:
+  FROM --build-arg MIX_ENV=dev +build
+
+  RUN mix check --except ex_unit reuse
 
 release:
   FROM +build

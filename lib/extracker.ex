@@ -44,6 +44,7 @@ defmodule Extracker do
     ]
 
     peer_data_queries = [
+      ["SADD", "torrents", info_hash],
       ["SET", "peer:#{peer_id}:address", "#{:inet.ntoa({a, b, c, d})}:#{port}"],
       ["SET", "peer:#{peer_id}:last_contacted", now_iso8601]
     ]
@@ -175,6 +176,7 @@ defmodule Extracker do
     delete_commands =
       Redix.pipeline!(:redix, [
         ["SMEMBERS", "torrent:#{info_hash}:peers"],
+        ["SREM", "torrents", info_hash],
         ["DEL", "torrent:#{info_hash}:downloaded"],
         ["DEL", "torrent:#{info_hash}:complete-peers"],
         ["DEL", "torrent:#{info_hash}:incomplete-peers"],
@@ -196,10 +198,19 @@ defmodule Extracker do
   end
 
   def count_torrents do
-    :telemetry.execute([:extracker, :torrents], %{count: 0})
+    count = Redix.command!(:redix, ["SCARD", "torrents"])
+    :telemetry.execute([:extracker, :torrents], %{count: count})
   end
 
   def count_peers do
-    :telemetry.execute([:extracker, :peers], %{count: 0})
+    count_commands =
+      Redix.command!(:redix, ["SMEMBERS", "torrents"])
+      |> Enum.map(&["SCARD", "torrent:#{&1}:peers"])
+
+    count =
+      Redix.pipeline!(:redix, count_commands)
+      |> Enum.sum()
+
+    :telemetry.execute([:extracker, :peers], %{count: count})
   end
 end

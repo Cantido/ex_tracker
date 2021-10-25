@@ -8,8 +8,8 @@ defmodule Extracker.Announce.Failure do
   """
 
   @type t :: %{
-    failure_reason: String.t()
-  }
+          failure_reason: String.t()
+        }
 
   defstruct [
     :failure_reason

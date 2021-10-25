@@ -13,20 +13,22 @@ defmodule Extracker.RouterTest do
   describe "announce" do
     test "returns an empty response on the first announce" do
       info_hash = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash)
       end)
 
-      params = %{
-        info_hash: Base.encode16(info_hash, lower: true),
-        peer_id: "12345678901234567890",
-        port: 8001,
-        uploaded: 0,
-        downloaded: 0,
-        left: 0,
-        event: "started"
-      }
-      |> URI.encode_query(:rfc3986)
+      params =
+        %{
+          info_hash: Base.encode16(info_hash, lower: true),
+          peer_id: "12345678901234567890",
+          port: 8001,
+          uploaded: 0,
+          downloaded: 0,
+          left: 0,
+          event: "started"
+        }
+        |> URI.encode_query(:rfc3986)
 
       conn = conn(:get, "/announce?" <> params)
 
@@ -46,10 +48,12 @@ defmodule Extracker.RouterTest do
   describe "scrape" do
     test "returns ok" do
       info_hash = :crypto.strong_rand_bytes(20)
-      params = %{
-        info_hash: Base.encode16(info_hash),
-      }
-      |> URI.encode_query(:rfc3986)
+
+      params =
+        %{
+          info_hash: Base.encode16(info_hash)
+        }
+        |> URI.encode_query(:rfc3986)
 
       conn = conn(:get, "/scrape?" <> params)
 

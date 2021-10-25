@@ -5,17 +5,18 @@
 defmodule Extracker.Router do
   use Plug.Router
 
-  if Mix.env == :dev do
+  if Mix.env() == :dev do
     use Plug.Debugger
   end
 
   use Plug.ErrorHandler
 
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   get "/announce" do
     conn = fetch_query_params(conn)
+
     %{
       "info_hash" => info_hash,
       "peer_id" => peer_id,
@@ -44,20 +45,23 @@ defmodule Extracker.Router do
       end
 
     address = {ip, String.to_integer(port)}
-    progress = {String.to_integer(uploaded), String.to_integer(downloaded), String.to_integer(left)}
 
-    announce_result = Extracker.announce(
-      info_hash,
-      peer_id,
-      address,
-      progress,
-      event: event
-    )
+    progress =
+      {String.to_integer(uploaded), String.to_integer(downloaded), String.to_integer(left)}
+
+    announce_result =
+      Extracker.announce(
+        info_hash,
+        peer_id,
+        address,
+        progress,
+        event: event
+      )
 
     with {:ok, response} <- announce_result,
-          format_type = format_type(conn),
-          response_body = Extracker.Format.format(response, format_type),
-          {:ok, response_binary} <- Bento.encode(response_body) do
+         format_type = format_type(conn),
+         response_body = Extracker.Format.format(response, format_type),
+         {:ok, response_binary} <- Bento.encode(response_body) do
       send_resp(conn, 200, response_binary)
     end
   end
@@ -70,14 +74,15 @@ defmodule Extracker.Router do
     failures = Enum.filter(results, fn {_hash, {status, _result}} -> status == :error end)
 
     if Enum.any?(failures) do
-      encoded = Map.new(failures, fn {hash, failure} ->
-        {Base.encode16(hash, case: :lower), failure}
-      end)
-      raise RuntimeError, "One or more scrapes failed: #{inspect encoded}"
+      encoded =
+        Map.new(failures, fn {hash, failure} ->
+          {Base.encode16(hash, case: :lower), failure}
+        end)
+
+      raise RuntimeError, "One or more scrapes failed: #{inspect(encoded)}"
     end
 
-    successes =
-      Map.new(results, fn {hash, {:ok, result}} -> {hash, result} end)
+    successes = Map.new(results, fn {hash, {:ok, result}} -> {hash, result} end)
 
     case Bento.encode(successes) do
       {:ok, bin} -> send_resp(conn, 200, bin)
@@ -94,9 +99,9 @@ defmodule Extracker.Router do
 
   defp hashes(conn) do
     conn.query_string
-    |> URI.query_decoder
-    |> Stream.filter(fn({k, _}) -> k == "info_hash" end)
-    |> Stream.map(fn({_, v}) -> Base.decode16!(v) end)
+    |> URI.query_decoder()
+    |> Stream.filter(fn {k, _} -> k == "info_hash" end)
+    |> Stream.map(fn {_, v} -> Base.decode16!(v) end)
   end
 
   match _ do

@@ -18,12 +18,12 @@ defmodule Extracker do
   def announce(info_hash, peer_id, address, stats, opts \\ [])
 
   def announce(
-    hash,
-    id,
-    {{a, b, c, d}, port},
-    {ul, dl, left},
-    opts
-  ) do
+        hash,
+        id,
+        {{a, b, c, d}, port},
+        {ul, dl, left},
+        opts
+      ) do
     validate_info_hash!(hash)
     validate_peer_id!(id)
     validate_ip_address!({{a, b, c, d}, port})
@@ -51,34 +51,58 @@ defmodule Extracker do
 
     peer_state_queries =
       case event do
-        :interval -> []
-        :completed -> [
-          ["INCR", "torrent:#{info_hash}:downloaded"],
-          ["SADD", "torrent:#{info_hash}:complete-peers", peer_id],
-          ["SREM", "torrent:#{info_hash}:incomplete-peers", peer_id],
-          ["SUNIONSTORE", "torrent:#{info_hash}:peers", "torrent:#{info_hash}:incomplete-peers", "torrent:#{info_hash}:complete-peers"],
-        ]
-        :started -> [
-          ["SADD", "torrent:#{info_hash}:incomplete-peers", peer_id],
-          ["SREM", "torrent:#{info_hash}:complete-peers", peer_id],
-          ["SUNIONSTORE", "torrent:#{info_hash}:peers", "torrent:#{info_hash}:incomplete-peers", "torrent:#{info_hash}:complete-peers"],
-        ]
-        :stopped -> [
-          ["SREM", "torrent:#{info_hash}:complete-peers", peer_id],
-          ["SREM", "torrent:#{info_hash}:incomplete-peers", peer_id],
-          ["SUNIONSTORE", "torrent:#{info_hash}:peers", "torrent:#{info_hash}:incomplete-peers", "torrent:#{info_hash}:complete-peers"],
-        ]
+        :interval ->
+          []
+
+        :completed ->
+          [
+            ["INCR", "torrent:#{info_hash}:downloaded"],
+            ["SADD", "torrent:#{info_hash}:complete-peers", peer_id],
+            ["SREM", "torrent:#{info_hash}:incomplete-peers", peer_id],
+            [
+              "SUNIONSTORE",
+              "torrent:#{info_hash}:peers",
+              "torrent:#{info_hash}:incomplete-peers",
+              "torrent:#{info_hash}:complete-peers"
+            ]
+          ]
+
+        :started ->
+          [
+            ["SADD", "torrent:#{info_hash}:incomplete-peers", peer_id],
+            ["SREM", "torrent:#{info_hash}:complete-peers", peer_id],
+            [
+              "SUNIONSTORE",
+              "torrent:#{info_hash}:peers",
+              "torrent:#{info_hash}:incomplete-peers",
+              "torrent:#{info_hash}:complete-peers"
+            ]
+          ]
+
+        :stopped ->
+          [
+            ["SREM", "torrent:#{info_hash}:complete-peers", peer_id],
+            ["SREM", "torrent:#{info_hash}:incomplete-peers", peer_id],
+            [
+              "SUNIONSTORE",
+              "torrent:#{info_hash}:peers",
+              "torrent:#{info_hash}:incomplete-peers",
+              "torrent:#{info_hash}:complete-peers"
+            ]
+          ]
       end
 
-    peer_list_queries =
-      [
-        ["SCARD", "torrent:#{info_hash}:complete-peers"],
-        ["SCARD", "torrent:#{info_hash}:incomplete-peers"],
-        ["SRANDMEMBER", "torrent:#{info_hash}:peers", numwant]
-      ]
+    peer_list_queries = [
+      ["SCARD", "torrent:#{info_hash}:complete-peers"],
+      ["SCARD", "torrent:#{info_hash}:incomplete-peers"],
+      ["SRANDMEMBER", "torrent:#{info_hash}:peers", numwant]
+    ]
 
     redis_results =
-      Redix.pipeline!(:redix, config_queries ++ peer_data_queries ++ peer_state_queries ++ peer_list_queries)
+      Redix.pipeline!(
+        :redix,
+        config_queries ++ peer_data_queries ++ peer_state_queries ++ peer_list_queries
+      )
 
     ids = List.last(redis_results)
 
@@ -94,12 +118,14 @@ defmodule Extracker do
         Redix.pipeline!(:redix, address_requests)
       end
 
-    peers = Enum.zip(ids, addresses)
+    peers =
+      Enum.zip(ids, addresses)
       |> Enum.map(fn {id, address} ->
         [host_str, port_str] = String.split(address, ":", limit: 2)
 
         {:ok, ip} = :inet.parse_address(String.to_charlist(host_str))
         port = String.to_integer(port_str)
+
         %{
           peer_id: Base.decode16!(id, case: :lower),
           ip: ip,
@@ -111,11 +137,12 @@ defmodule Extracker do
     complete_count = Enum.at(redis_results, -3)
     incomplete_count = Enum.at(redis_results, -2)
 
-    {:ok, %{complete: complete_count, incomplete: incomplete_count, interval: interval, peers: peers}}
+    {:ok,
+     %{complete: complete_count, incomplete: incomplete_count, interval: interval, peers: peers}}
   end
 
   def announce(_, _, _, _, _) do
-    {:error, "invalid request" }
+    {:error, "invalid request"}
   end
 
   defp validate_info_hash!(info_hash) do
@@ -148,11 +175,11 @@ defmodule Extracker do
     info_hash = Base.encode16(info_hash, case: :lower)
 
     results =
-    Redix.pipeline!(:redix, [
-      ["SCARD", "torrent:#{info_hash}:complete-peers"],
-      ["SCARD", "torrent:#{info_hash}:incomplete-peers"],
-      ["GET", "torrent:#{info_hash}:downloaded"]
-    ])
+      Redix.pipeline!(:redix, [
+        ["SCARD", "torrent:#{info_hash}:complete-peers"],
+        ["SCARD", "torrent:#{info_hash}:incomplete-peers"],
+        ["GET", "torrent:#{info_hash}:downloaded"]
+      ])
 
     downloaded =
       if dl = Enum.at(results, 2) do
@@ -161,12 +188,12 @@ defmodule Extracker do
         0
       end
 
-
-    {:ok, %{
-      complete: Enum.at(results, 0),
-      incomplete: Enum.at(results, 1),
-      downloaded: downloaded
-    }}
+    {:ok,
+     %{
+       complete: Enum.at(results, 0),
+       incomplete: Enum.at(results, 1),
+       downloaded: downloaded
+     }}
   end
 
   def drop(info_hash) do
@@ -186,7 +213,7 @@ defmodule Extracker do
       |> Enum.flat_map(fn peer_id ->
         [
           ["DEL", "peer:#{peer_id}:address"],
-          ["DEL", "peer:#{peer_id}:last_contacted"],
+          ["DEL", "peer:#{peer_id}:last_contacted"]
         ]
       end)
 

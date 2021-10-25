@@ -8,20 +8,20 @@ defmodule Extracker.Announce.Response do
   """
 
   @type t :: %{
-    warning_message: String.t(),
-    interval: non_neg_integer(),
-    min_interval: non_neg_integer(),
-    tracker_id: binary(),
-    complete: non_neg_integer(),
-    incomplete: non_neg_integer(),
-    peers: [peer]
-  }
+          warning_message: String.t(),
+          interval: non_neg_integer(),
+          min_interval: non_neg_integer(),
+          tracker_id: binary(),
+          complete: non_neg_integer(),
+          incomplete: non_neg_integer(),
+          peers: [peer]
+        }
 
   @type peer :: %{
-    peer_id: binary(),
-    ip: :inet.ipv4_address(),
-    port: :inet.port_number()
-  }
+          peer_id: binary(),
+          ip: :inet.ipv4_address(),
+          port: :inet.port_number()
+        }
 
   defstruct [
     :warning_message,

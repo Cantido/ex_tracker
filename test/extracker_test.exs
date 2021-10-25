@@ -13,6 +13,7 @@ defmodule ExtrackerTest do
   describe "announce" do
     test "remembers peers that announce" do
       info_hash = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash)
       end)
@@ -20,13 +21,14 @@ defmodule ExtrackerTest do
       peer_id_1 = :crypto.strong_rand_bytes(20)
       peer_id_2 = :crypto.strong_rand_bytes(20)
 
-      {:ok, _resp} = Extracker.announce(
-        info_hash,
-        peer_id_1,
-        {{127, 0, 0, 1}, 8000},
-        {0, 0, 0},
-        event: :started
-      )
+      {:ok, _resp} =
+        Extracker.announce(
+          info_hash,
+          peer_id_1,
+          {{127, 0, 0, 1}, 8000},
+          {0, 0, 0},
+          event: :started
+        )
 
       {:ok, resp} =
         Extracker.announce(
@@ -44,18 +46,18 @@ defmodule ExtrackerTest do
       assert resp.incomplete == 2
 
       assert Enum.count(resp.peers) == 2
-      peer_1 = Enum.find(resp.peers, & &1.peer_id == peer_id_1)
+      peer_1 = Enum.find(resp.peers, &(&1.peer_id == peer_id_1))
       assert peer_1.ip == {127, 0, 0, 1}
       assert peer_1.port == 8000
 
-
-      peer_2 = Enum.find(resp.peers, & &1.peer_id == peer_id_2)
+      peer_2 = Enum.find(resp.peers, &(&1.peer_id == peer_id_2))
       assert peer_2.ip == {127, 0, 0, 1}
       assert peer_2.port == 8001
     end
 
     test "remembers when peers complete" do
       info_hash = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash)
       end)
@@ -63,21 +65,23 @@ defmodule ExtrackerTest do
       peer_id_1 = :crypto.strong_rand_bytes(20)
       peer_id_2 = :crypto.strong_rand_bytes(20)
 
-      {:ok, _resp} = Extracker.announce(
-        info_hash,
-        peer_id_1,
-        {{127, 0, 0, 1}, 8000},
-        {0, 0, 100},
-        event: :started
-      )
+      {:ok, _resp} =
+        Extracker.announce(
+          info_hash,
+          peer_id_1,
+          {{127, 0, 0, 1}, 8000},
+          {0, 0, 100},
+          event: :started
+        )
 
-      {:ok, _resp} = Extracker.announce(
-        info_hash,
-        peer_id_1,
-        {{127, 0, 0, 1}, 8000},
-        {0, 100, 0},
-        event: :completed
-      )
+      {:ok, _resp} =
+        Extracker.announce(
+          info_hash,
+          peer_id_1,
+          {{127, 0, 0, 1}, 8000},
+          {0, 100, 0},
+          event: :completed
+        )
 
       {:ok, resp} =
         Extracker.announce(
@@ -99,6 +103,7 @@ defmodule ExtrackerTest do
   describe "scrape" do
     test "returns completed downloads" do
       info_hash = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash)
       end)
@@ -120,6 +125,7 @@ defmodule ExtrackerTest do
 
     test "returns incomplete downloads" do
       info_hash = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash)
       end)
@@ -141,27 +147,30 @@ defmodule ExtrackerTest do
 
     test "returns downloaded after a peer leaves the swarm" do
       info_hash = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash)
       end)
 
       peer_id = :crypto.strong_rand_bytes(20)
 
-      {:ok, _resp} = Extracker.announce(
-        info_hash,
-        peer_id,
-        {{127, 0, 0, 1}, 8000},
-        {0, 100, 0},
-        event: :completed
-      )
+      {:ok, _resp} =
+        Extracker.announce(
+          info_hash,
+          peer_id,
+          {{127, 0, 0, 1}, 8000},
+          {0, 100, 0},
+          event: :completed
+        )
 
-      {:ok, _resp} = Extracker.announce(
-        info_hash,
-        peer_id,
-        {{127, 0, 0, 1}, 8000},
-        {0, 0, 0},
-        event: :stopped
-      )
+      {:ok, _resp} =
+        Extracker.announce(
+          info_hash,
+          peer_id,
+          {{127, 0, 0, 1}, 8000},
+          {0, 0, 0},
+          event: :stopped
+        )
 
       {:ok, resp} = Extracker.scrape(info_hash)
 
@@ -174,6 +183,7 @@ defmodule ExtrackerTest do
   describe "drop/1" do
     test "drops all peers" do
       info_hash = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash)
       end)
@@ -199,6 +209,7 @@ defmodule ExtrackerTest do
   describe "count_torrents/0" do
     test "returns the current number of torrents we know about" do
       info_hash = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash)
       end)
@@ -225,6 +236,7 @@ defmodule ExtrackerTest do
     test "returns the current number of peers we know about" do
       info_hash_1 = :crypto.strong_rand_bytes(20)
       info_hash_2 = :crypto.strong_rand_bytes(20)
+
       on_exit(fn ->
         Extracker.drop(info_hash_1)
         Extracker.drop(info_hash_2)

@@ -11,7 +11,7 @@ defmodule Extracker.Format do
   def format(body, :compact), do: Extracker.Format.Compact.format(body)
 
   @callback format(%{
-    interval: integer,
-    peers: [%{ip: any, port: any, peer_id: any}]
-  }) :: any
+              interval: integer,
+              peers: [%{ip: any, port: any, peer_id: any}]
+            }) :: any
 end

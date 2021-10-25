@@ -15,11 +15,11 @@ defmodule Extracker.Format.Compact do
   end
 
   defp compact_peer(%{peer_id: _, ip: {a, b, c, d}, port: port})
-    when a in 0..255
-     and b in 0..255
-     and c in 0..255
-     and d in 0..255
-     and port in 0..65_535 do
-      <<a, b, c, d, port :: 16>>
+       when a in 0..255 and
+              b in 0..255 and
+              c in 0..255 and
+              d in 0..255 and
+              port in 0..65_535 do
+    <<a, b, c, d, port::16>>
   end
 end

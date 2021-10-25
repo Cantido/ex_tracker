@@ -70,7 +70,7 @@ docker:
   FROM elixir:alpine
   WORKDIR /app
 
-  COPY --build-arg MIX_ENV=prod +release/_build/prod/rel .
+  COPY --build-arg MIX_ENV=prod +release/rel .
 
   ENTRYPOINT ["/app/bin/extracker"]
   CMD ["start"]

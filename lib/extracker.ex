@@ -198,8 +198,7 @@ defmodule Extracker do
   end
 
   def count_torrents do
-    count = Redix.command!(:redix, ["SCARD", "torrents"])
-    :telemetry.execute([:extracker, :torrents], %{count: count})
+    Redix.command!(:redix, ["SCARD", "torrents"])
   end
 
   def count_peers do
@@ -207,10 +206,11 @@ defmodule Extracker do
       Redix.command!(:redix, ["SMEMBERS", "torrents"])
       |> Enum.map(&["SCARD", "torrent:#{&1}:peers"])
 
-    count =
+    if Enum.any?(count_commands) do
       Redix.pipeline!(:redix, count_commands)
       |> Enum.sum()
-
-    :telemetry.execute([:extracker, :peers], %{count: count})
+    else
+      0
+    end
   end
 end

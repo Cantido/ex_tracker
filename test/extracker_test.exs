@@ -170,4 +170,29 @@ defmodule ExtrackerTest do
       assert resp.incomplete == 0
     end
   end
+
+  describe "drop/1" do
+    test "drops all peers" do
+      info_hash = :crypto.strong_rand_bytes(20)
+      on_exit(fn ->
+        Extracker.drop(info_hash)
+      end)
+
+      Extracker.announce(
+        info_hash,
+        :crypto.strong_rand_bytes(20),
+        {{127, 0, 0, 1}, 8000},
+        {0, 100, 0},
+        event: :completed
+      )
+
+      :ok = Extracker.drop(info_hash)
+
+      {:ok, resp} = Extracker.scrape(info_hash)
+
+      assert resp.complete == 0
+      assert resp.downloaded == 0
+      assert resp.incomplete == 0
+    end
+  end
 end

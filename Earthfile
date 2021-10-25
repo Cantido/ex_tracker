@@ -38,7 +38,7 @@ lint-copyright:
 
   COPY . .
 
-  RUN reuse lint
+  RUN mix check --only reuse
 
 check:
   FROM --build-arg MIX_ENV=test +build
@@ -47,7 +47,7 @@ check:
   COPY docker-compose.yml ./docker-compose.yml
 
   WITH DOCKER --compose docker-compose.yml
-    RUN mix check
+    RUN mix check --except reuse
   END
 
 release:

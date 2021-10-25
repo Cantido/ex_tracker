@@ -40,6 +40,7 @@ defmodule Extracker.MixProject do
       {:castore, ">= 0.0.0"},
       {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
       {:redix, "~> 1.1"},
+      {:telemetry, "~> 1.0"},
       {:vapor, "~> 0.10"}
     ]
   end

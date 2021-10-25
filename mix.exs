@@ -41,6 +41,7 @@ defmodule Extracker.MixProject do
       {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
       {:ex_check, "~> 0.14.0", only: [:dev], runtime: false},
       {:redix, "~> 1.1"},
+      {:sobelow, "~> 0.8", only: :dev},
       {:telemetry, "~> 1.0"},
       {:vapor, "~> 0.10"}
     ]

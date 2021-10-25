@@ -103,6 +103,7 @@ defmodule Extracker.Router do
     send_resp(conn, 404, "Not Found")
   end
 
+  # sobelow_skip ["XSS.SendResp"]
   def handle_errors(conn, %{kind: _kind, reason: _reason, stack: _stack}) do
     send_resp(conn, conn.status, Bento.encode!(%{"failure reason" => "internal server error"}))
   end

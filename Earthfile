@@ -57,3 +57,23 @@ test:
   COPY test ./test
 
   RUN MIX_ENV=test mix test
+
+release:
+  FROM +build
+
+  RUN MIX_ENV=$MIX_ENV mix release
+
+  SAVE ARTIFACT _build/$MIX_ENV/rel AS LOCAL ./_build/$MIX_ENV/rel
+
+docker:
+  FROM elixir:alpine
+  WORKDIR /app
+
+  COPY --build-arg MIX_ENV=prod +release/_build/prod/rel .
+
+  ENTRYPOINT ["/app/bin/extracker"]
+  CMD ["start"]
+
+  SAVE IMAGE --push ghcr.io/cantido/extracker:latest
+
+  

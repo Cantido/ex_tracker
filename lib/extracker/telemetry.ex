@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 defmodule Extracker.Telemetry do
   def count_torrents do
     count = Extracker.count_torrents()

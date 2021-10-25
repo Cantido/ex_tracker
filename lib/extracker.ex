@@ -7,10 +7,6 @@ defmodule Extracker do
   A fast & scaleable BitTorrent tracker.
   """
 
-  defguardp is_ip_address(a, b, c, d) when a in 0..255 and b in 0..255 and c in 0..255 and d in 0..255
-  defguardp is_ip_port(port) when port in 0..65_535
-  defguardp is_info_hash(hash) when is_binary(hash) and byte_size(hash) == 20
-
   def set_interval(interval) do
     Redix.command!(:redix, ["SET", "interval", interval])
     :ok
@@ -27,12 +23,14 @@ defmodule Extracker do
     {{a, b, c, d}, port},
     {ul, dl, left},
     opts
-  )
-  when is_info_hash(hash)
-   and is_binary(id) and byte_size(id) == 20
-   and is_ip_port(port)
-   and ul >= 0 and dl >= 0 and left >= 0
-   and is_ip_address(a, b, c, d) do
+  ) do
+    validate_info_hash!(hash)
+    validate_peer_id!(id)
+    validate_ip_address!({{a, b, c, d}, port})
+    validate_byte_count!(ul)
+    validate_byte_count!(dl)
+    validate_byte_count!(left)
+
     event = Keyword.get(opts, :event, :interval)
     numwant = Keyword.get(opts, :numwant, 50)
 
@@ -119,7 +117,33 @@ defmodule Extracker do
     {:error, "invalid request" }
   end
 
-  def scrape(info_hash) when is_info_hash(info_hash) do
+  defp validate_info_hash!(info_hash) do
+    unless is_binary(info_hash) and byte_size(info_hash) == 20 do
+      raise "invalid info hash"
+    end
+  end
+
+  defp validate_peer_id!(peer_id) do
+    unless is_binary(peer_id) and byte_size(peer_id) == 20 do
+      raise "invalid peer ID"
+    end
+  end
+
+  defp validate_ip_address!({{a, b, c, d}, port}) do
+    unless a in 0..255 and b in 0..255 and c in 0..255 and d in 0..255 and port in 0..65_535 do
+      raise "invalid IP address"
+    end
+  end
+
+  defp validate_byte_count!(count) do
+    unless is_number(count) and count >= 0 do
+      raise "invalid byte count"
+    end
+  end
+
+  def scrape(info_hash) do
+    validate_info_hash!(info_hash)
+
     info_hash = Base.encode16(info_hash, case: :lower)
 
     results =
@@ -142,9 +166,6 @@ defmodule Extracker do
       incomplete: Enum.at(results, 1),
       downloaded: downloaded
     }}
-  end
-
-    {:error, :invalid_info_hash}
   end
 
   def drop(info_hash) do

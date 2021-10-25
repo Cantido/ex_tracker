@@ -8,11 +8,15 @@ defmodule Extracker.MixProject do
   def project do
     [
       app: :extracker,
+      description: "A BitTorrent tracker backed by Redis",
       version: "0.1.0",
       elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      package: package(),
+      homepage_url: "https://github.com/Cantido/extracker",
+      source_url: "https://github.com/Cantido/extracker"
     ]
   end
 
@@ -29,6 +33,16 @@ defmodule Extracker.MixProject do
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  defp package() do
+    [
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => "https://github.com/Cantido/extracker",
+        "Sponsor" => "https://liberapay.org/rosa"
+      }
+    ]
+  end
 
   # Specifies your project dependencies.
   #

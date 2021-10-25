@@ -54,6 +54,8 @@ test:
 check:
   FROM --build-arg MIX_ENV=dev +build
 
+  COPY . .
+
   RUN mix check --except ex_unit reuse
 
 release:

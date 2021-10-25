@@ -56,7 +56,7 @@ check:
 
   COPY . .
 
-  RUN mix check --except ex_unit reuse
+  RUN mix check --except ex_unit --except reuse
 
 release:
   FROM +build

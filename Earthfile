@@ -56,7 +56,9 @@ test:
 
   COPY test ./test
 
-  RUN MIX_ENV=test mix test
+  WITH DOCKER --compose docker-compose.yml
+    RUN MIX_ENV=test mix test
+  END
 
 release:
   FROM +build

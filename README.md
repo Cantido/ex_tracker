@@ -6,14 +6,25 @@ SPDX-License-Identifier: MIT
 
 # Extracker
 
-A fast & scaleable BitTorrent tracker
+A fast & scaleable BitTorrent tracker backed by [Redis](https://redis.io).
 
-To start your Phoenix server:
+## Install
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phx.server`
+Clone this repository.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Fire up a local instance of Redis using `docker-compose up`.
+Run it with `iex -S mix`.
+
+### Configuration
+
+Configuration is done through environment variables.
+
+- `PORT` sets the port to listen on. `6969` by default.
+- `REDIS` sets where to find Redis. `redis://localhost:6379` by default.
+
+## Usage
+
+Use a BitTorrent client configured to use `http://localhost:6969/announce` as a tracker.
 
 ## License
 

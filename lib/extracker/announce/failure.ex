@@ -7,6 +7,10 @@ defmodule Extracker.Announce.Failure do
   Failure struct for the Tracker HTTP Protocol.
   """
 
+  @type t :: %{
+    failure_reason: String.t()
+  }
+
   defstruct [
     :failure_reason
   ]

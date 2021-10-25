@@ -144,12 +144,29 @@ defmodule Extracker do
     }}
   end
 
-  def scrape(_req) do
     {:error, :invalid_info_hash}
   end
 
   def drop(info_hash) do
+    validate_info_hash!(info_hash)
 
+    delete_commands =
+      Redix.pipeline!(:redix, [
+        ["SMEMBERS", "torrent:#{info_hash}:peers"],
+        ["DEL", "torrent:#{info_hash}:downloaded"],
+        ["DEL", "torrent:#{info_hash}:complete-peers"],
+        ["DEL", "torrent:#{info_hash}:incomplete-peers"],
+        ["DEL", "torrent:#{info_hash}:peers"]
+      ])
+      |> List.first()
+      |> Enum.flat_map(fn peer_id ->
+        [
+          ["DEL", "peer:#{peer_id}:address"],
+          ["DEL", "peer:#{peer_id}:last_contacted"],
+        ]
+      end)
+
+    Redix.pipeline!(:redix, delete_commands)
   end
 
   def count_torrents do

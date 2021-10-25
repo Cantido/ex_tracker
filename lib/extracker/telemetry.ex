@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 defmodule Extracker.Telemetry do
+  @moduledoc """
+  Integration with `:telemetry`.
+  """
+
   def count_torrents do
     count = Extracker.count_torrents()
     :telemetry.execute([:extracker, :torrents], %{count: count})

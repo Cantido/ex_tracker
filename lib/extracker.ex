@@ -170,6 +170,7 @@ defmodule Extracker do
 
   def drop(info_hash) do
     validate_info_hash!(info_hash)
+    info_hash = Base.encode16(info_hash, case: :lower)
 
     delete_commands =
       Redix.pipeline!(:redix, [
@@ -187,7 +188,11 @@ defmodule Extracker do
         ]
       end)
 
-    Redix.pipeline!(:redix, delete_commands)
+    if Enum.any?(delete_commands) do
+      Redix.pipeline!(:redix, delete_commands)
+    end
+
+    :ok
   end
 
   def count_torrents do

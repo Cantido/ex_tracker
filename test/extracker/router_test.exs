@@ -6,6 +6,10 @@ defmodule Extracker.RouterTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
+  setup_all do
+    Extracker.set_interval(120)
+  end
+
   describe "announce" do
     test "returns an empty response on the first announce" do
       info_hash = :crypto.strong_rand_bytes(20)

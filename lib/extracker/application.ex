@@ -13,7 +13,8 @@ defmodule Extracker.Application do
       %Env{
         bindings: [
           {:port, "PORT", default: 6969},
-          {:interval, "INTERVAL", default: 120}
+          {:interval, "INTERVAL", default: 120},
+          {:redis, "REDIS", default: "redis://localhost:6379"}
         ]
       }
     ]
@@ -21,9 +22,7 @@ defmodule Extracker.Application do
     config = Vapor.load!(providers)
 
     children = [
-      {Extracker.TorrentSupervisor, interval: config.interval},
-      {Registry, [keys: :unique, name: Extracker.TorrentRegistry]},
-
+      {Redix, {config.redis, [name: :redix]}},
       {Bandit, plug: Extracker.Router, scheme: :http, options: [port: config.port]}
     ]
 

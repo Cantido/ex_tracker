@@ -57,7 +57,7 @@ defmodule Extracker.MixProject do
       {:ex_check, "~> 0.14.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
       {:hex_licenses, "> 0.0.0", only: :dev, runtime: false},
-      {:poison, "~> 2.0", override: true},
+      {:poison, "~> 5.0", override: true},
       {:redix, "~> 1.1"},
       {:sobelow, "~> 0.8", only: :dev},
       {:telemetry, "~> 1.0"},

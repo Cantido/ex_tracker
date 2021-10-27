@@ -205,4 +205,33 @@ defmodule ExtrackerTest do
       assert resp.incomplete == 0
     end
   end
+
+  describe "clean/0" do
+    test "drops all out-of-date peers" do
+      info_hash = :crypto.strong_rand_bytes(20)
+
+      on_exit(fn ->
+        Extracker.drop(info_hash)
+      end)
+
+      peer_id = :crypto.strong_rand_bytes(20)
+
+      {:ok, _resp} =
+        Extracker.announce(
+          info_hash,
+          peer_id,
+          {{127, 0, 0, 1}, 8000},
+          {0, 100, 0},
+          event: :completed
+        )
+
+      :ok = Extracker.clean(0)
+
+      {:ok, resp} = Extracker.scrape(info_hash)
+
+      assert resp.complete == 0
+      assert resp.downloaded == 1
+      assert resp.incomplete == 0
+    end
+  end
 end

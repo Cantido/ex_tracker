@@ -224,6 +224,89 @@ defmodule Extracker do
     :ok
   end
 
+  def clean(ttl) do
+    info_hashes = Redix.command!(:redix, ["SMEMBERS", "torrents"])
+    peer_ids_for_hash =
+      if Enum.any?(info_hashes) do
+        Redix.pipeline!(:redix, Enum.map(info_hashes, &["SMEMBERS", "torrent:#{&1}:peers"]))
+      else
+        []
+      end
+
+    peer_ids = Enum.concat(peer_ids_for_hash)
+
+    peer_last_contacted_dates =
+      if Enum.any?(peer_ids) do
+        Redix.pipeline!(:redix, Enum.map(peer_ids, &["GET", "peer:#{&1}:last_contacted"]))
+      else
+        []
+      end
+      |> Enum.map(fn last_contacted ->
+        if last_contacted do
+          {:ok, timestamp, _offset} = DateTime.from_iso8601(last_contacted)
+          timestamp
+        else
+          nil
+        end
+      end)
+
+    timestamps_for_peers = Enum.zip(peer_ids, peer_last_contacted_dates) |> Map.new()
+
+    report =
+      Enum.zip(info_hashes, peer_ids_for_hash)
+      |> Map.new(fn {info_hash, peer_ids} ->
+        peer_timestamps = Map.take(timestamps_for_peers, peer_ids)
+
+        {info_hash, peer_timestamps}
+      end)
+
+    now = DateTime.utc_now()
+    expired_peers_by_hash =
+      Map.new(report, fn {info_hash, peer_timestamps} ->
+        expired_peers_for_hash =
+          Enum.filter(peer_timestamps, fn {_peer_id, timestamp} ->
+            is_nil(timestamp) or not active?(timestamp, now, ttl)
+          end)
+          |> Map.new()
+          |> Map.keys()
+
+        {info_hash, expired_peers_for_hash}
+      end)
+      |> Enum.filter(fn {_info_hash, expired_peers} ->
+        Enum.any?(expired_peers)
+      end)
+
+    drops =
+      Enum.flat_map(expired_peers_by_hash, fn {info_hash, peers} ->
+        set_drops = [
+          ["SREM", "torrent:#{info_hash}:complete-peers"] ++ peers,
+          ["SREM", "torrent:#{info_hash}:incomplete-peers"] ++ peers
+        ]
+
+        peer_drops =
+          Enum.flat_map(peers, fn peer_id ->
+            [
+              ["DEL", "peer:#{peer_id}:address"],
+              ["DEL", "peer:#{peer_id}:last_contacted"]
+            ]
+          end)
+
+        set_drops ++ peer_drops
+      end)
+
+    if Enum.any?(drops) do
+      Redix.pipeline!(:redix, drops)
+    end
+
+    :ok
+  end
+
+  defp active?(timestamp, now, ttl) do
+    expiration = DateTime.add(timestamp, ttl, :second)
+
+    DateTime.compare(now, expiration) in [:lt, :eq]
+  end
+
   def count_torrents do
     Redix.command!(:redix, ["SCARD", "torrents"])
   end

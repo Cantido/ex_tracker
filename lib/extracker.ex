@@ -226,6 +226,7 @@ defmodule Extracker do
 
   def clean(ttl) do
     info_hashes = Redix.command!(:redix, ["SMEMBERS", "torrents"])
+
     peer_ids_for_hash =
       if Enum.any?(info_hashes) do
         Redix.pipeline!(:redix, Enum.map(info_hashes, &["SMEMBERS", "torrent:#{&1}:peers"]))
@@ -261,6 +262,7 @@ defmodule Extracker do
       end)
 
     now = DateTime.utc_now()
+
     expired_peers_by_hash =
       Map.new(report, fn {info_hash, peer_timestamps} ->
         expired_peers_for_hash =

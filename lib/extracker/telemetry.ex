@@ -7,11 +7,17 @@ defmodule Extracker.Telemetry do
   Integration with `:telemetry`.
   """
 
+  @doc """
+  Count the number of torrents present on the server and emit as a telemetry event.
+  """
   def count_torrents do
     count = Extracker.count_torrents()
     :telemetry.execute([:extracker, :torrents], %{count: count})
   end
 
+  @doc """
+  Count the number of peers present on the server and emit as a telemetry event.
+  """
   def count_peers do
     count = Extracker.count_peers()
 

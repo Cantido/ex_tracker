@@ -7,6 +7,11 @@ defmodule Extracker.Format do
   Serializer for peers.
   """
 
+  @doc """
+  Serialize a peer into a binary, either `:standard` or `:compact`.
+  """
+  def format(body, style)
+
   def format(body, :standard), do: Extracker.Format.Standard.format(body)
   def format(body, :compact), do: Extracker.Format.Compact.format(body)
 

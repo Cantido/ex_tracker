@@ -9,6 +9,9 @@ defmodule Extracker.Format.Standard do
 
   @behaviour Extracker.Format
 
+  @doc """
+  Serialize a peer into a standard binary.
+  """
   def format(%{peers: peers} = body) when is_list(peers) do
     %{body | peers: format_peers(peers)}
   end

@@ -8,6 +8,7 @@ defmodule Extracker.Application do
   use Application
   alias Vapor.Provider.Env
 
+  @doc false
   def start(_type, _args) do
     providers = [
       %Env{

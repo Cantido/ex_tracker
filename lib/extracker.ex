@@ -7,6 +7,9 @@ defmodule Extracker do
   A fast & scaleable BitTorrent tracker.
   """
 
+  @doc """
+  Set the duration that an announced peer will be kept in the system.
+  """
   def set_interval(interval) do
     Redix.command!(:redix, ["SET", "interval", interval])
     :ok
@@ -169,6 +172,9 @@ defmodule Extracker do
     end
   end
 
+  @doc """
+  Get complete, incomplete, and all-time-downloaded counts for a torrent.
+  """
   def scrape(info_hash) do
     validate_info_hash!(info_hash)
 
@@ -196,6 +202,9 @@ defmodule Extracker do
      }}
   end
 
+  @doc """
+  Delete all information relevant to a torrent.
+  """
   def drop(info_hash) do
     validate_info_hash!(info_hash)
     info_hash = Base.encode16(info_hash, case: :lower)
@@ -224,6 +233,9 @@ defmodule Extracker do
     :ok
   end
 
+  @doc """
+  Remove all expired peers from the server.
+  """
   def clean(ttl) do
     info_hashes = Redix.command!(:redix, ["SMEMBERS", "torrents"])
 
@@ -309,10 +321,16 @@ defmodule Extracker do
     DateTime.compare(now, expiration) in [:lt, :eq]
   end
 
+  @doc """
+  Get the number of torrents the server knows about.
+  """
   def count_torrents do
     Redix.command!(:redix, ["SCARD", "torrents"])
   end
 
+  @doc """
+  Get the number of peers the server knows about.
+  """
   def count_peers do
     count_commands =
       Redix.command!(:redix, ["SMEMBERS", "torrents"])

@@ -9,8 +9,11 @@ defmodule Extracker.Format.Compact do
 
   @behaviour Extracker.Format
 
+  @doc """
+  Serialize a peer into a compact binary.
+  """
   def format(%{peers: peers} = body) when is_list(peers) do
-    peers = Enum.map(peers, &compact_peer/1) |> Enum.join()
+    peers = Enum.map_join(peers, &compact_peer/1)
     %{body | peers: peers}
   end
 

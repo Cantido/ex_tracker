@@ -53,7 +53,7 @@ defmodule Extracker.MixProject do
       {:bandit, "~> 0.5.0"},
       {:castore, ">= 0.0.0"},
       {:credo, "~> 1.6.0", only: :dev, runtime: false},
-      {:doctor, "~> 0.19.0", only: :dev},
+      {:doctor, "~> 0.20.0", only: :dev},
       {:ex_check, "~> 0.14.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
       {:hex_licenses, "> 0.0.0", only: :dev, runtime: false},

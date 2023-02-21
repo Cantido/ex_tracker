@@ -49,7 +49,7 @@ defmodule Extracker.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:bento, "~> 0.9"},
+      {:bento, "~> 1.0"},
       {:bandit, "~> 0.6.0"},
       {:castore, ">= 0.0.0"},
       {:credo, "~> 1.6.0", only: :dev, runtime: false},

@@ -50,7 +50,7 @@ defmodule Extracker.MixProject do
   defp deps do
     [
       {:bento, "~> 1.0"},
-      {:bandit, "~> 1.2.0"},
+      {:bandit, "~> 1.3.0"},
       {:castore, ">= 0.0.0"},
       {:credo, "~> 1.7.0", only: :dev, runtime: false},
       {:doctor, "~> 0.21.0", only: :dev},
